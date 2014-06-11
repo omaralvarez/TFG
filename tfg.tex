@@ -68,7 +68,7 @@
 % Package booktabs -> Para mejorar el aspecto de las tablas o cuadros.
 % http://www.ctan.org/tex-archive/macros/latex/contrib/booktabs/
 \usepackage{booktabs}
-\usepackage[pagebackref=true, hypertexnames=true]{hyperref}
+
 % Package rotating -> Para poder girar las tablas y dibujarlas a lo largo
 % del folio en vez de a lo ancho.
 \usepackage{rotating}
@@ -81,6 +81,8 @@
 
 %Links in biblio.
 \usepackage{url}
+
+\usepackage[pagebackref=true, hypertexnames=true, plainpages=false]{hyperref}
 
 % Personalizamos la separaci�n entre p�rrafos...
 \parskip=6pt
@@ -106,6 +108,9 @@
 	% 1. Usarla e ignorar las normas (y asumir las consecuencias que pueda tener)
 	% 2. Hacernos una portada en LaTeX que cumpla las normas (menos arriesgado)
 	%
+	
+	\pagenumbering{roman}	
+	
         \include{tfg_portada}
         \thispagestyle{empty}
         \cleardoublepage
@@ -189,7 +194,9 @@
 
 	% MAINMATTER: El contenido, cap�tulo a cap�tulo, de la memoria del tfg.
         \mainmatter
-
+	
+	\pagenumbering{arabic}	
+	
 	\include{tfg_frontmatter_intro}
 	%\include{tfg_main_070}
 	%\include{tfg_main_000}
