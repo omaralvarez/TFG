@@ -106,7 +106,7 @@
 	% 1. Usarla e ignorar las normas (y asumir las consecuencias que pueda tener)
 	% 2. Hacernos una portada en LaTeX que cumpla las normas (menos arriesgado)
 	%
-        \include{pfc_portada}
+        \include{tfg_portada}
         \thispagestyle{empty}
         \cleardoublepage
         %\newpage
@@ -122,16 +122,16 @@
 	%
 	
         %\thispagestyle{empty}     % No number page, headings...
-        %\include{pfc_certificado}
+        %\include{tfg_certificado}
         
         \thispagestyle{empty}     % No number page, headings...
-	\include{pfc_desc}
+	\include{tfg_desc}
 	
 	\thispagestyle{empty}
         \cleardoublepage
 	
 	\thispagestyle{empty}     % No number page, headings...
-	\include{pfc_dedicatoria}
+	\include{tfg_dedicatoria}
         
         \thispagestyle{empty}
         \cleardoublepage
@@ -141,7 +141,7 @@
 	%\mbox{}
 	
 	\thispagestyle{empty}
-        \include{pfc_agradecimientos}
+        \include{tfg_agradecimientos}
         
         \thispagestyle{empty}
         \cleardoublepage
@@ -150,25 +150,25 @@
 	%\mbox{}
 	
 	\thispagestyle{empty}
-        \include{pfc_resumo}
+        \include{tfg_resumo}
         
         \thispagestyle{empty}
         \cleardoublepage
 	
 	\thispagestyle{empty}
-        \include{pfc_resumen}
+        \include{tfg_resumen}
         
         \thispagestyle{empty}
         \cleardoublepage
         
         \thispagestyle{empty}     % No number page, headings...
-	%\include{pfc_palabras_clave}
+	%\include{tfg_palabras_clave}
 	
 	\thispagestyle{empty}
         \cleardoublepage
 	
         \thispagestyle{empty}     % No number page, headings...
-        %\include{pfc_soft_hard}
+        %\include{tfg_soft_hard}
         
         \thispagestyle{empty}
         \cleardoublepage
@@ -187,29 +187,29 @@
 	%\thispagestyle{empty}
 	%\mbox{}
 
-	% MAINMATTER: El contenido, cap�tulo a cap�tulo, de la memoria del PFC.
+	% MAINMATTER: El contenido, cap�tulo a cap�tulo, de la memoria del tfg.
         \mainmatter
 
-	\include{pfc_frontmatter_intro}
-	%\include{pfc_main_070}
-	%\include{pfc_main_000}
-	%\include{pfc_main_010}
-	%\include{pfc_main_020}
-	%\include{pfc_main_030}
-	%\include{pfc_main_040}
-	%\include{pfc_main_050}
-	%\include{pfc_main_060}
-	%\include{pfc_main_080}
+	\include{tfg_frontmatter_intro}
+	%\include{tfg_main_070}
+	%\include{tfg_main_000}
+	%\include{tfg_main_010}
+	%\include{tfg_main_020}
+	%\include{tfg_main_030}
+	%\include{tfg_main_040}
+	%\include{tfg_main_050}
+	%\include{tfg_main_060}
+	%\include{tfg_main_080}
 
 	% INCLUIMOS LOS AP�NDICES...
         %\appendix
-	%\include{pfc_appendix_010}
-%         \include{pfc_appendix_020}
+	%\include{tfg_appendix_010}
+%         \include{tfg_appendix_020}
 
 	%Primero hay que compilar el bibtex para que salga.
 	% INCLUIMOS LA BIBLIOGRAF�A...
 	\nocite{*}	% Se usa para indicar en la bibliograf�a las referencias no citadas.
-	\bibliography{pfc_biblio}
+	\bibliography{tfg_biblio}
 	\bibliographystyle{alpha}
 
 \end{document}

@@ -28,6 +28,7 @@
 *.out
 *.synctex.gz
 *.pdf
+*.brf
 
 # Mac finder files and hidden folders
 .DS_Store
