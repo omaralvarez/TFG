@@ -1,0 +1,32 @@
+%
+% Resumen del proyecto de fin de carrera
+%
+
+\section*{Resumo:}
+
+O render baseado en puntos ten múltiples vantaxes respecto do clásico que utiliza mallas de polígonos, sobre todo no caso no que os polígonos poidan chegar a ser máis pequenos ca un pixel.
+
+O obxectivo deste proxecto é deseñar e implementar un motor de render baseado en puntos que utilice raytracing como método de iluminación global. Ao ser un campo todavía pouco explorado, o proxecto presenta unha importante compoñente investigadora, xa que implica a búsqueda de solucións que nos permitan resolver os distintos problemas que xurden nas diferentes fases dun \emph{pipeline} gráfico para o render de puntos. Tres son as principais metas que se propuxeron acadar con este proxecto:
+\begin{itemize}
+\item Desenvolver un motor de \emph{ray tracing} desde cero.
+\item Investigar como as técnicas de iluminación global máis habituais poden ser aplicadas en render baseado en puntos.
+\item Comprobar o potencial do punto como primitiva gráfica dun motor de render.
+\end{itemize}
+
+O motor proposto segue un deseño totalmente modular, con varias etapas
+que permiten desacoplar as distintas operacións a realizar para obter o render dunha escena 3D. Así, primeiro precisaremos gardar a información que o motor necesita para renderizar unha escea (cousas coma a posición da cámara, orientación, etc.). Para iso utilízase un arquivo de configuración XML que contén todos estos datos, así como calquera outra información relevante para o proceso de render.
+
+Seguidamente precísase gardar os datos da nube de puntos. Para iso é necesario saber a posición, vector normal, etc. de cada punto, para o que utilizamos un arquivo de texto ASCII que contén toda a información da escena de entrada e que ademais soporta control de versións, permitindo cambios no formato. Tamén ofreceremos unha interfaz integrada en Blender que permite ao usuario crear datasets en Blender e renderizarlos co noso motor. Isto dota ó proxecto dunha gran flexibilidade, xa que é capaz de renderizar datasets ou calquer escea en Blender.
+
+Despois deste paso, precísase elexir o modelo de cámara a usar. No noso motor implementamos dúas opcións diferentes. Así, é posible elexir entre unha cámara axonométrica ou en perspectiva (dependendo do modo de render elexido). Por outra banda, tamén é posible elexir entre obter o render mediante a proxección da escena na cámara ou ben usando raytracing. Aínda que o motor implementa ambas alternativas, concentrarémonos no raytracing, posto que é a opción que máis posibilidades e prestacións ofrece, sendo o caso a estudar no proxecto.
+
+É importante reseñar que debido á natureza das nubes de puntos, que tenden a ter unha gran cantidade de datos, para a aceleración do proceso de raytracing o motor permite utilizar unha estrutura de aceleración espacial que permita organizar as nubes de puntos para optimizar determinadas operacións cos mesmos (intersección raio-escena, búsqueda de veciños, etc.). Concretamente, neste proxecto implementouse un k-d tree como estrutura de aceleración. O uso do k-d tree permite obter unha importante mellora no rendemento do noso motor.
+
+Respecto ao tradicional render baseado en polígonos, o render con puntos presenta algunhas desvantaxes, como por exemplo a natureza adimensional dos mesmos. Isto quere dicir que o punto non ten superficie, volumen ou normal, o que introduce novos problemas en moitas das operacións comúns dun motor de render: interseccións, iluminación, etc. Concretamente, no caso do cálculo da iluminación é imprescindible dispor dos vectores normais ás distintas superficies da escena, neste caso representadas por puntos. Se non se dispón destas normais, é necesario estimalas dalgún xeito. Para resolver este problema o proxecto utiliza un método de mínimos cadrados que se usa para estimar a normal nun punto dependendo de donde estén os seus veciños.
+
+A derradeira etapa do noso motor, pero non menos importante de acordo aos obxectivos do proxecto, é a iluminación da escena. O motor ofrece dúas opcións. Por un lado pódese utilizar un método de \emph{hard shadows}, menos custoso computacionalmente pero con resultados pouco realistas. Por outra banda,
+o motor implementa o método de \emph{Monte Carlo}, modelo de iluminación global que trata de simular o comportamento real da luz nun contorno, ofrecendo resultados máis realistas, aínda que significativamente máis custosos.
+
+Posto que o motor fai un importante uso de distintas operacións e funcións matemáticas ao longo de todas as súas fases, o proxecto tamén incorpora unha librería matemática que se encarga destas tarefas.
+
+
