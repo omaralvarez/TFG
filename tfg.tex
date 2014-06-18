@@ -109,6 +109,11 @@
 	% 2. Hacernos una portada en LaTeX que cumpla las normas (menos arriesgado)
 	%
 	
+	%Modify list bullets so it does not use dash for second level
+	\renewcommand{\labelitemi}{$\bullet$}
+	\renewcommand{\labelitemii}{$\circ$}
+	
+	%Change page numbering so backref works
 	\pagenumbering{roman}	
 	
         \include{tfg_portada}
@@ -198,7 +203,7 @@
 	\pagenumbering{arabic}	
 	
 	\include{tfg_frontmatter_intro}
-	%\include{tfg_main_070}
+	\include{tfg_main_020}
 	%\include{tfg_main_000}
 	%\include{tfg_main_010}
 	%\include{tfg_main_020}
