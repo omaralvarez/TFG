@@ -96,13 +96,26 @@ Extreme programming also introduces a number of basic values, principles and pra
 
 We have used in our project several of the premises of agile software development. We have used approximately weekly or biweekly iterations focused on completing simple objectives that would yield working software. The work in each iteration has been constant and diligent, focusing always on completing the task at hand, but not avoiding changes if it was deemed necessary. 
 
-Several practices from XP...
+Also several XP practices were used in the project. Such as user stories (see \figurename~\ref{story_cards}), were each planned functionality was broken up in stories if big enough. Then the effort to implement each story was estimated directly since the estimation units are simple enough to provide a rough estimate, but because of the nature of the project this estimates were not very precise even when estimating just small units. They were just meant as guidance and mainly used to keep track of progress.  Another practice followed was an informative workspace, the story cards were stuck to the wall so they were easily visible to everybody. They were also organized in groups, so the progress in each functional area was easily tracked.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.6]{figures/story_cards.pdf}
+	\caption[Story cards]{
+		In this image we can see a sketch of the structure of a story card and how they were organized.
+	}
+	\label{story_cards}
+\end{figure}
+
+Incremental design was also used, every day the design was reviewed and adapted to the new requirements. Lastly, a sustainable pace was kept. Because designing and implementing software is a creative process that requires insight, developers have to be rested, ready and motivated. To make the most of the worked time, the premise of coding for two hours straight without checking e-mails or other distractions was used, along with other similar productivity tricks. 
 
 The meetings with my two advisors were kept on face-to-face basis when possible. In each meeting we would comment what had been achieved since the last one, laid out what the objectives were for the next iteration and talked about the roadblocks found on the task at hand. Whenever communication in person was not possible, e-mails were exchanged regularly if tasks where completed or any other event arised. 
 
-To keep the code accesible by everyone in the team, up to date and well organized \textbf{Git} \cite{gitrev} version control software was used. Git is free software used to manage source code and keep distributed revision control. Every Git working directory is a repository with complete history and revision tracking capabilities. In this project it was esential to have a system like this in place, because of the research nature of the project. Ideas needed to be tried without wasting time on keeping tabs on the added code, Git makes this really easy and not problematic thanks to history and revision tracking.
+To keep the code accessible by everyone in the team, up to date and well organized \textbf{Git} \cite{gitrev} version control software was used. Git is free software used to manage source code and keep distributed revision control. Every Git working directory is a repository with complete history and revision tracking capabilities. In this project it was essential to have a system like this in place, because of the research nature of the project. Ideas needed to be tried without wasting time on keeping tabs on the added code, Git makes this really easy and not problematic thanks to history and revision tracking.
 
-Although because of the research nature of the project it was not possible to estimate how much time we would spend in each iteration, we provide a Gantt chart that depicts how the project iterations were performed after the fact (see \figurename~\ref{gantt_chart}).
+Since the project is divided in two sub-projects (PCM and ToView\footnote{The visualizer, the main focus of this project.}), it was also necessary to manage the separate repositories in some way. With this in mind, \textbf{Redmine} \cite{redmine} was chosen to achieve our goal. This is a free and open source web-based tool for project management and bug tracking. It has support for multiple projects, a Gantt chart, calendar, support for multiple users, several types of repositories, news, wiki, etc. 
+
+As this project is meant to be open source, this tool will allow the coordination of the efforts of future developments well after the end of this project. We believe this project will be a good fit for the ``bazaar type'' of development that other successful open source software has used. In this model, the code is developed openly for everyone to see. This type of development also encourages the participation of the user in the development process.      
 
 We have also estimated the cost of the project as we can see in Table~\ref{cost_table}. It only includes human resources and hardware costs because all the software used was free.
 
@@ -125,6 +138,8 @@ Resource & Units & Hours & Cost per hour & Total \\
 }
 \label{cost_table}
 \end{table}
+
+Although because of the research nature of the project it was not possible to estimate how much time we would spend in each iteration, we provide a Gantt chart that depicts how the project iterations were performed after the fact (see \figurename~\ref{gantt_chart}).
 
 \begin{landscape}
 	\begin{figure}
