@@ -1,0 +1,281 @@
+%
+% TÍTULO DEL CAPÍTULO
+%
+\chapter[CG basics]{
+	Computer Graphics basics
+	\label{chapter_3}
+}
+
+In this chapter, some concepts in 3D rendering are introduced, paying special attention to the main components of a real time point-based rendering visualizer. We first describe the process that generates the frame-buffer. This means that we have to explain the camera model. We will also depict how we represent points in space by several means that will be introduced in this chapter.
+
+Only a brief description of these concepts is presented, to get more familiarized with Computer Graphics the book \cite{CGPP} is recommended. For point-based rendering techniques the book \cite{pbg} is an essential source.
+
+\section[Rendering]{
+	Rendering
+}
+
+Traditionally Computer Graphics has been defined as the computer science discipline that is dedicated to synthesizing images algorithmically with computers. Nowadays we can find even more related topics like hyper realistic photography, animation techniques, virtual reality, etc. To generate images from three-dimensional scenes a process called \textbf{render} is used. This set of actions  is in charge of modeling objects and their properties, illumination if needed and the camera that will capture everything.
+
+As has been said before, rendering is the computational process of generating an image from a model. From this definition multiple interpretations are possible, from creating a 3D animation film to a bar chart in a spreadsheet, all of them are equally valid. Although the term is normally used when the model we are using is of a spatial nature and more specifically three-dimensional.
+
+Several classifications of rendering techniques could be made, but for this introduction we will use two of them. On one side, if we use the type or style of the image we want to achieve, we will have:
+
+\begin{itemize}
+\item \textbf{Non-photorealistic rendering}, uses other types of effects that render the scene with artistic style, intended to look like a painting or drawing.
+\item \textbf{Photorealistic rendering}, tries to be as faithful as possible to reality. This type of render can be subdivided in: 
+	\begin{itemize}
+	\item \textbf{Physically-based rendering}: Tries to compute an authentic simulation of light transport through the virtual scene and its interaction with materials and objects. The precision of this simulation will depend on the mathematical and physical models chosen.
+	\item \textbf{Faked}: Utilizes algorithmic tricks, not trying to pretend an ad-hoc simulation of light, usually to reduce render times.  
+	\end{itemize}
+\end{itemize}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.5]{figures/photo_comp.pdf}
+	\caption[Rendering types comparison]{
+		A photorealistic render on the left, versus a non-photorealistic render on the right.
+	}
+	\label{photo_comp}
+\end{figure}
+
+On the other side, if we compare the interaction capabilities of the rendering application with the user, we can divide rendering techniques in: 
+
+\begin{itemize}
+\item \textbf{Offline rendering}: Where the process that generates the image is too slow to respond instantaneously to the user interactions. A time scale of seconds and up to several days can be considered ``slow''. This happens for example when generating photograms for a movie.
+\item \textbf{Online rendering}: Where processing time would be short enough to respond to user interactions so that the user has the sensation of continuity. A time scale of miliseconds would be needed to achieve this effect. Normally it is measured in \emph{frames per second} (FPS). A good example of this technique are videogames. 
+\end{itemize}
+
+Almost everything in this document will be devoted to non-photorealistic real-time rendering techniques, since ToView is aimed as way for the user to interact in real-time with massive point clouds.
+
+For more information about real-time rendering please consult \cite{realtime}.
+
+\subsection[Rendering process]{Rendering process}
+
+There are several techniques for generating images from a model. All of them start with a camera position, the geometry of the objects is projected in that direction one way or another, calculating the color of each resulting pixel. The two families of techniques are the ones based on \emph{scanline rendering}, where lists of geometry are traversed with horizontal scan lines. Intermediate calculations determine what object is closer to the camera, how do the lights in the scene affect the objects, etc.
+
+Since we require real-time rendering, we will take advantage of the power of the GPU. The GPU \textit{pipeline} is the process implemented in hardware to create images from the scene information in a highly efficient way. It is comprised of several stages were several lineal algebra operations that account for the position, rotation and scaling of the point of view, objects and lights; to finally determine the color of the pixel drawn to the screen. 
+
+A GPU can be used to process graphical data using two APIs\footnote{\textit{Application Programming Interface}}:
+
+\begin{itemize}
+\item \textbf{DirectX}: Microsoft's propietary API, only useful in Windows systems. 
+\item \textbf{OpenGL}: Standard and multiplatform, this were the main reasons why it was the chosen API for this project. 
+\end{itemize}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.6]{figures/ogl_pipe.pdf}
+	\caption[OpenGL pipeline]{
+		The OpenGL pipeline.
+	}
+	\label{opengl_pipe}
+\end{figure}
+
+In modern GPUs, some of the stages of the pipeline can be modified using small programs written in GLSL\footnote{\textit{GL Shading Language}} called shaders. In \figurename~\ref{opengl_pipe} the simplified pipeline of a modern version of OpenGL can be observed. In it the vertex, geometry and fragment stages are programmable. The \textit{frame-buffer}\footnote{The portion of memory (buffer) reserved to maintain temporally an image (frame) awaiting to be sent to the monitor.} will be the final image that will be shown onscreen. 
+
+Although there are some constraints in the form of number of instructions and control structures, shaders started a revolution in real-time rendering. Sometimes even allowing to create images almost as realistic as offline rendering.  
+
+\subsection[Models]{
+	Models
+}
+
+Modeling describes the process of forming the shape of a virtual object in a computer. There are several types of models (see \figurename~\ref{model_comp}):
+
+\begin{itemize}
+\item \textbf{Polygon-based}: Describe the surface of an object as a set of polygons. Triangles are the most commonly used polygons, since they are flat and trivially convex. Most of the existing graphics hardware is optimized for this primitive.
+\item \textbf{Voxel-based}: Divides space in a regular 3D grid where the \emph{voxel} is the smallest unit of volume. Each cell is either filled or not and depending on that the pixels are shaded. Memory increases as precision is augmented. 
+\item \textbf{Point-based}: Objects are represented by point samples of their surface, that is why they are usually called \emph{splats}. Each point has a position and some information about the surface that it belongs to. Compared to the traditional triangle-based approach, this primitive needs its own rendering techniques and its own pipeline, since different challenges must be faced. This is our case study and because of that, this primitive will be further explained in Section~\ref{splats_and_points}.
+\end{itemize}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.6]{figures/model_comp.pdf}
+	\caption[Model types comparison]{
+		From left to right; a polygon-based, a voxel-based and a point-based model of a plane (2D representation).
+	}
+	\label{model_comp}
+\end{figure}
+
+%
+% SECCION - Título de la sección
+%
+\section[Splats]{\label{splats_and_points}
+	Splats and points
+}
+
+A point cloud is a set of vertices or points in a three-dimensional coordinate system. These vertices are usually positioned in 3D space and have a set of coordinates $(x,y,z)$. These sets of points normally are representative of the external surface of an object. 
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=1]{figures/point_cloud.pdf}
+	\caption[Point cloud]{
+		Photo overlaid atop laser scan data from a project held in early 2009 at Kasubi Tombs.
+	}
+	\label{point_cloud}
+\end{figure}
+
+Point clouds are normally created by 3D scanners, these devices capture automatically a large number of points on the surface of an object (see \figurename~\ref{point_cloud}), and yield a point cloud dataset as a result. 
+
+The points from the range data represent a surface, but a point is zero-dimensional; this means that it does not have volume, area, length or any other higher dimensional equivalent. Usually point clouds are not directly usable in most 3D applications because of this reason. That is why we need splats (surface elements), that describe the surface in a small neighborhood. 
+
+At this point we need to choose how the surface will be represented by the point. In our project we will represent the splat as a disc. 
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.4]{figures/surf_disc.pdf}
+	\caption[Disc approach]{
+		Visual representation of the splat as a disc.
+	}
+	\label{surf_disc}
+\end{figure}
+
+If on the other hand we choose to represent the splat as a disc, the splats can have have the following parameters (see \figurename~\ref{surf_disc}):
+
+\begin{description}
+  \item [Position:] \emph{x}, \emph{y} and \emph{z} coordinates in world space.
+  \item [Normal:] A vector that represents the surface normal of the splat. It can be provided or the engine can estimate it.
+  \item [Radius:] This will be the radius of the sphere that will represent the splat. The engine will also be capable of calculating the radius automatically.
+  \item [Color:] The splat color in RGB parameters if we are going to use the lighting from the scanned data.
+  \item [Other properties:] Intensity, reflectivity, temperature, etc.
+\end{description}
+
+\section[Transformations]{
+	3D Euclidean space and transformations
+}
+
+In 3D computer graphics we normally work with a three-dimensional space of Euclidean geometry, the term ``Euclidean'' is used to distinguish between these spaces and the curved spaces of non-Euclidean geometry. The most common types of operations in Euclidean geometry can be represented with a transformation matrix if homogeneus coordinates are used. Because of this a transformation \textbf{T} can be used for several purposes. 
+
+Using basic linear algebra concepts, a $4\times4$ matrix can be used to express the linear transformation of a point or vector. A transformation will then be represented by the elements of the $4\times4$ matrix. They can also be used to perform some transformations that are non-linear on an Euclidean space. For this reason transformation matrices are widely used in computer graphics.
+
+Generally a transformation is a mapping from points to points or vectors to vectors \cite{PBRT}, for example: \begin{equation}p' = \textbf{T}(p) \;\;\;\;\; v' = \textbf{T}(v)\end{equation} 
+
+To transform the points or vectors we just have to perform the appropriate matrix multiplications. This also allows the composition of transformations, we just have to multiply the transformation matrices. 
+
+Most commonly used transformations are:
+
+\begin{itemize}
+\item \textbf{Rotation}, will rotate a point or a vector by a given angle either around an arbitrary axis or the $x$, $y$ or $z$ axis.
+\item \textbf{Scaling}, takes a point or a vector and will scale its $x$, $y$ and $z$ components by a factor.
+\item \textbf{Translation}, only affects points and will translate coordinates $x$, $y$ and $z$ a set amount.
+\item \textbf{Model}, this matrix is useful for transforming the model locally. It is comprised of a set of rotation, scaling and translation matrices. When we apply this matrix to all the points, we will have them in world coordinates.  
+\item \textbf{View}, initially the camera is placed in the origin of world space. To be able to move around the world this transformation is used. This matrix is also called \textit{look-at}. After this transformation is applied, we will have the points in camera coordinates.
+\item \textbf{Projection}, since a 3D scene has to be projected onto the screen as a 2D image, we need another process that converts the points from camera coordinates to homogeneous coordinates so that they can be projected onscreen. 
+\end{itemize}
+
+Usually the composition of the model, view and projection matrices is called \textit{MVP} and is applied to every point that we want to draw.
+
+To illustrate how the transformations are represented by a $4\times4$ matrix, equation~\ref{eq_trans} shows the generic transformation matrix for a translation: \begin{equation}\label{eq_trans}\textbf{T}(\Delta x,\Delta y,\Delta z) = \begin{pmatrix}
+ 1& 0 & 0 & \Delta x\\ 
+ 0& 1 & 0 & \Delta y\\ 
+ 0& 0 & 1 & \Delta z\\ 
+ 0& 0 &0  & 0
+\end{pmatrix}\end{equation}
+
+This transformation is applied to a point $P=(x,y,z)$ in the following way: \begin{equation}\begin{pmatrix}
+ 1& 0 & 0 & \Delta x\\ 
+ 0& 1 & 0 & \Delta y\\ 
+ 0& 0 & 1 & \Delta z\\ 
+ 0& 0 & 0 & 0
+\end{pmatrix} \begin{pmatrix}
+x\\
+y\\
+z\\ 
+1
+\end{pmatrix} = \begin{pmatrix}
+x+\Delta x\\
+y+\Delta y\\
+z+\Delta z\\ 
+1
+\end{pmatrix}\end{equation}
+
+\section[Camera model]{
+	Camera model
+}
+
+Almost everyone nowadays has used a camera and knows its basic purpose: you want to record an image of the world (usually pressing a button) and the image is then recorded on a film. One of the simplest  cameras in the real world is the \emph{pinhole camera}. Pinhole cameras use a light tight space with a hole at one end. When this hole is uncovered light enters through the hole and reaches a piece of photographic paper on the other end of the box (see \figurename~\ref{pinhole}). In this day and age, cameras are more complex than this simple camera model, but this is a good starting point to explain how our simulation works.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.5]{figures/pinhole.pdf}
+	\caption[Pinhole camera]{
+		Diagram explaining how a pinhole camera works.
+	}
+	\label{pinhole}
+\end{figure}
+
+The most important function of the camera is defining the part of the scene that will be recorded on the photographic film. Connecting the pinhole to the edges of the film creates a double pyramid that extends into the scene. Objects that are not inside this pyramid will not be imaged on the film. As cameras are now more complex, we will refer to the region that can be imaged as \emph{viewing volume}. 
+
+If we were to use the pinhole as the film, the viewing volume would not change. When the film or image is infront of the pinhole, the pinhole is frequently referred to as the \emph{eye}. In our simulated camera where the film is infront of the eye, we will display the amount of light traveling from the image plane to the eye. Several tests will be performed by OpenGL depending on the type of camera to check which points can be seen and have to be represented in the frame-buffer. 
+
+The camera model used in this project supports several settings. First we explain how this settings affect the camera model, after we detail how the camera model interacts with the ray tracing process. Readers can consult \cite{PBRT} if they want to delve deeper in the topic.
+
+\subsection[Parameters]{Camera parameters}
+
+The first parameter that the camera model supports is \textbf{camera position}. This parameter states where the camera will be positioned in world space coordinates (\emph{x,y,z}).
+
+Next supported parameter is the \textbf{camera orientation}. This parameter is a point in the world at which the camera is looking at.
+
+We also need to know how to orient the camera along the viewing direction implied by the first two parameters. The parameter \textbf{camera up vector} gives us that orientation. 
+
+We can see how this parameters are organized in camera space in \figurename~\ref{cam_ori}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.55]{figures/cam_ori.pdf}
+	\caption[Camera orientation]{
+		Diagram explaining the camera coordinates.
+	}
+	\label{cam_ori}
+\end{figure}
+
+Other important parameters in a camera model are the clipping planes. \textbf{Hither} dictates where the near clipping plane of the camera is located and \textbf{yon} indicates where the far clipping plane is situated as we can see in \figurename~\ref{hither_yon}. The camera's clipping planes give us the range of space along the \emph{z} axis that will be visible in images. Objects that are in front of the hither plane or beyond the yon plane will not be visible. 
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.5]{figures/hither_yon.pdf}
+	\caption[Hither and Yon]{
+		Representation of hither and yon planes.
+	}
+	\label{hither_yon}
+\end{figure}
+
+The last parameter that the camera supports is the \textbf{field of view}. The angle of view describes the angular extent of the scene captured by the camera horizontally and vertically. 
+
+The clipping planes and the angles of view define the viewing volume in our model, also known as the \emph{viewig frustum}.
+
+\subsection[Inner workings]{Camera inner workings}
+
+Once we have the camera parameters we need to place the camera in the scene, and for this we will use a \emph{look-at transformation}. All of the above parameters are given in world space coordinates, the view matrix gives us a transformation between world and camera coordinates as mentioned before. 
+
+\ldots
+
+Before we start building the frame-buffer, we will first transform all of the scene's points and normals (if provided) so calculating the rays that we are going to trace and the rest of the computations are simplified. 
+
+As in certain contexts \emph{frustum culling} can be useful, the engine offers the option to filter the \emph{viewing frustum} (see \figurename~\ref{frustum}), although in global illumination this may not useful, as there can be objects that influence the viewing frustum and filtering them would lead to illumination errors. The viewing frustum is the region of space that will appear in the image generated by the engine. This process of eliminating objects that are outside the viewing frustum is called \emph{viewing frustum culling}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.6]{figures/frustum.pdf}
+	\caption[Viewing frustum]{
+		Diagram showing the viewing frustum.
+	}
+	\label{frustum}
+\end{figure}
+
+After the optional filtering we have to choose if we are going to use ray tracing or just a projective camera. Our projective camera uses an orthographic model, while our ray tracing technique uses a perspective camera model.
+
+If we use a projective camera then we will use an orthographic transformation that will project points to the far viewing plane. This type of transformation does not give the effect of foreshortening\footnote{Objects becoming smaller on the image plane as they get further away.}, it keeps lines parallel and preserves relative distance between objects. This transformation leaves \emph{x} and \emph{y} coordinates unchanged, but maps \emph{z} values at the hither plane to 0 and \emph{z} values at the yon plane to 1.
+
+Once we have the adequate coordinates we just have to map them to screen space depending on the resolution of the render. If two points are mapped to the same pixel we have to see which one is closer in the \emph{z} axis, because that will be the point that the pixel is going to represent.
+
+If on the contrary we chose to use ray tracing instead of a projective camera, we have to calculate how to cast rays so that the scene will be projected on the near viewing plane. This type of camera includes the foreshortening effect we mentioned before. This projection does not preserve distances or angles, and parallel lines no longer remain parallel.
+
+To achieve this effect using ray tracing, we create rays that start at (0,0,0) in camera coordinates. The direction of this rays is obtained calculating where the pixel is situated in camera coordinates, and then substracting this point minus (0,0,0). Finally we normalize the resulting vector (see \figurename~\ref{ray_casting}).
+
+When we have one ray for each pixel, we are ready to use ray tracing to create the frame-buffer. We trace each ray through the scene and see which points intersect with the ray. Once we know the points that intersect with the ray, we need to choose the one that is closer to the near viewing plane. This will be the point that the pixel will represent. 
+
+This process implies that we have to check for intersections between each ray and the complete scene. These computations are costly when the scenes are big and to accelerate the ray-intersection process we need an acceleration structure. These structures reject chunks of the scene that the ray misses and just check for intersections in parts of the scene that the ray traverses. In our project we have chosen to use a \emph{k-d tree} as we will see in \chaptername~\ref{chapter_3}.
+
+
+
+
+
