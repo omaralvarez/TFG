@@ -215,10 +215,6 @@ The first parameter that the camera model supports is \textbf{camera position}. 
 
 Next supported parameter is the \textbf{camera orientation}. This parameter is a point in the world at which the camera is looking at.
 
-We also need to know how to orient the camera along the viewing direction implied by the first two parameters. The parameter \textbf{camera up vector} gives us that orientation. 
-
-We can see how this parameters are organized in camera space in \figurename~\ref{cam_ori}.
-
 \begin{figure}[h]
 	\centering
 	\includegraphics[scale=0.55]{figures/cam_ori.pdf}
@@ -227,6 +223,10 @@ We can see how this parameters are organized in camera space in \figurename~\ref
 	}
 	\label{cam_ori}
 \end{figure}
+
+We also need to know how to orient the camera along the viewing direction implied by the first two parameters. The parameter \textbf{camera up vector} gives us that orientation. 
+
+We can see how this parameters are organized in camera space in \figurename~\ref{cam_ori}.
 
 Other important parameters in a camera model are the clipping planes. \textbf{Hither} dictates where the near clipping plane of the camera is located and \textbf{yon} indicates where the far clipping plane is situated as we can see in \figurename~\ref{hither_yon}. The camera's clipping planes give us the range of space along the \emph{z} axis that will be visible in images. Objects that are in front of the hither plane or beyond the yon plane will not be visible. 
 \begin{figure}[h]
@@ -240,40 +240,62 @@ Other important parameters in a camera model are the clipping planes. \textbf{Hi
 
 The last parameter that the camera supports is the \textbf{field of view}. The angle of view describes the angular extent of the scene captured by the camera horizontally and vertically. 
 
-The clipping planes and the angles of view define the viewing volume in our model, also known as the \emph{viewig frustum}.
+The clipping planes and the angles of view define the viewing volume in our model, also known as the \emph{viewig frustum} (see \figurename~\ref{frustum}).
+
+The user also has the option to use a \textbf{perspective} or \textbf{orthographic} camera depending on what his needs are. An architect for example may prefer an orthographic camera, while a normal user may use a perspective camera that will yield a more natural image as result. 
+
+Orthographic projection is more commonly used in engineering because dimensions are communicated unambiguously, if there is a one unit length line anywhere in the scene; it will appear the same length everywhere. Also every line that is parallel in the scene will be parallel in reality. With perspective projection, lines of identical real-world length will appear different due to \textit{foreshortening}\footnote{Objects becoming smaller on the image plane as they get further away.}. This is why it will be difficult to judge relative dimensions when objects are far away.
+
+Another option that is available is using a \textbf{FPS}\footnote{First-Person Camera} or an \textbf{orbital} camera. On one hand with a first person camera the user can walk freely just like if he was inside the scene, forward, back, left, right, etc. On the other hand with an orbital camera the user sets a center point and then orbits around said point.     
 
 \subsection[Inner workings]{Camera inner workings}
 
-Once we have the camera parameters we need to place the camera in the scene, and for this we will use a \emph{look-at transformation}. All of the above parameters are given in world space coordinates, the view matrix gives us a transformation between world and camera coordinates as mentioned before. 
+Once we have the camera parameters we need to place the camera in the scene, we will use a \emph{look-at} transformation for this purpose. Using the look-at transformation as view matrix will give us a transformation between world and camera coordinates as mentioned before. The next step will depend on the type of camera that the user will choose, either orthogonal or perspective. In light of this a projection matrix will be chosen reflecting the choice. The composition of these matrices will yield the MVP matrix. This is the mathematical expression used for transforming each point:
 
-\ldots
+\begin{equation}\begin{split}v' & = \textbf{\textit{P}}\cdot \textbf{\textit{V}} \cdot \textbf{\textit{M}} \cdot v \\ & = \textbf{\textit{MVP}} \cdot v\end{split}\end{equation}    
 
-Before we start building the frame-buffer, we will first transform all of the scene's points and normals (if provided) so calculating the rays that we are going to trace and the rest of the computations are simplified. 
-
-As in certain contexts \emph{frustum culling} can be useful, the engine offers the option to filter the \emph{viewing frustum} (see \figurename~\ref{frustum}), although in global illumination this may not useful, as there can be objects that influence the viewing frustum and filtering them would lead to illumination errors. The viewing frustum is the region of space that will appear in the image generated by the engine. This process of eliminating objects that are outside the viewing frustum is called \emph{viewing frustum culling}.
+Once we have the MVP matrix, we can perform \emph{frustum culling}. The visualizer selects the only the points that fall inside the \emph{viewing frustum} (see \figurename~\ref{frustum}). This is a essential process to achieve the necessary performance to be able to render the point clouds in real-time. The viewing frustum is the region of space that will appear in the images generated by the visualizer. This process of eliminating objects that are outside the viewing frustum is called \emph{viewing frustum culling}.
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[scale=0.6]{figures/frustum.pdf}
+	\includegraphics[scale=0.55]{figures/frustum.pdf}
 	\caption[Viewing frustum]{
 		Diagram showing the viewing frustum.
 	}
 	\label{frustum}
 \end{figure}
 
-After the optional filtering we have to choose if we are going to use ray tracing or just a projective camera. Our projective camera uses an orthographic model, while our ray tracing technique uses a perspective camera model.
+These computations are costly when the scenes are big and to simplify the culling process we need an acceleration structure. These structures reject chunks of the scene that are not inside the frustum. In our project we have chosen to use a multi-resolution \emph{k-d tree}.
 
-If we use a projective camera then we will use an orthographic transformation that will project points to the far viewing plane. This type of transformation does not give the effect of foreshortening\footnote{Objects becoming smaller on the image plane as they get further away.}, it keeps lines parallel and preserves relative distance between objects. This transformation leaves \emph{x} and \emph{y} coordinates unchanged, but maps \emph{z} values at the hither plane to 0 and \emph{z} values at the yon plane to 1.
+If an orthographic transformation is used, points will be projected to the far viewing plane. This type of transformation does not give the effect of foreshortening, it keeps lines parallel and preserves relative distance between objects. This transformation leaves \emph{x} and \emph{y} coordinates unchanged, but maps \emph{z} values at the hither plane to 0 and \emph{z} values at the yon plane to 1.
 
 Once we have the adequate coordinates we just have to map them to screen space depending on the resolution of the render. If two points are mapped to the same pixel we have to see which one is closer in the \emph{z} axis, because that will be the point that the pixel is going to represent.
 
-If on the contrary we chose to use ray tracing instead of a projective camera, we have to calculate how to cast rays so that the scene will be projected on the near viewing plane. This type of camera includes the foreshortening effect we mentioned before. This projection does not preserve distances or angles, and parallel lines no longer remain parallel.
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.5]{figures/cam_rotation.pdf}
+	\caption[FPS camera rotation]{
+		Diagram showing the rotation in a first-person camera.
+	}
+	\label{FPS_rot}
+\end{figure}
 
-To achieve this effect using ray tracing, we create rays that start at (0,0,0) in camera coordinates. The direction of this rays is obtained calculating where the pixel is situated in camera coordinates, and then substracting this point minus (0,0,0). Finally we normalize the resulting vector (see \figurename~\ref{ray_casting}).
+If on the contrary we chose to use a perspective camera, we have to take into account the foreshortening effect we mentioned before. This projection does not preserve distances or angles, and parallel lines no longer remain parallel. \emph{x} and \emph{y} are not left unchanged, they are modified according to the corresponding \textit{z} value, that dictates how close to the camera the point is.
 
-When we have one ray for each pixel, we are ready to use ray tracing to create the frame-buffer. We trace each ray through the scene and see which points intersect with the ray. Once we know the points that intersect with the ray, we need to choose the one that is closer to the near viewing plane. This will be the point that the pixel will represent. 
+This is the course of action followed to create one frame, but since the visualizer is interactive, we have to repeat this process several times per second. Furthermore, we have to take into account how the user wants to move. If the FPS camera option is chosen, we start in a certain position and then we will be able to move forward, backward, left and right just as we would be able to do if we were walking around the scene in reality. The user will also be able to look around with complete freedom (see \figurename~\ref{FPS_rot}). \textit{Yaw} allows the user to look left and right and \textit{pitch} up and down.   
+ 
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.8]{figures/orb_rot.pdf}
+	\caption[Orbital camera rotation]{
+		Diagram showing the rotation in a orbital camera.
+	}
+	\label{orb_rot}
+\end{figure}
 
-This process implies that we have to check for intersections between each ray and the complete scene. These computations are costly when the scenes are big and to accelerate the ray-intersection process we need an acceleration structure. These structures reject chunks of the scene that the ray misses and just check for intersections in parts of the scene that the ray traverses. In our project we have chosen to use a \emph{k-d tree} as we will see in \chaptername~\ref{chapter_3}.
+When the orbital camera is used, instead of freely walking around, we orbit around a center point (see \figurename~\ref{orb_rot}). The rotation in this instance is represented by a number of rotation degrees ($\alpha$ and $\beta$) around the $x$ and $y$ axes of a coordinate system centered in the interest point. Instead of moving the camera, we move the point of interest, that will be followed by the camera.  
+
+
 
 
 
