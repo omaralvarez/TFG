@@ -231,7 +231,7 @@ We can see how this parameters are organized in camera space in \figurename~\ref
 Other important parameters in a camera model are the clipping planes. \textbf{Hither} dictates where the near clipping plane of the camera is located and \textbf{yon} indicates where the far clipping plane is situated as we can see in \figurename~\ref{hither_yon}. The camera's clipping planes give us the range of space along the \emph{z} axis that will be visible in images. Objects that are in front of the hither plane or beyond the yon plane will not be visible. 
 \begin{figure}[h]
 	\centering
-	\includegraphics[scale=0.5]{figures/hither_yon.pdf}
+	\includegraphics[scale=0.45]{figures/hither_yon.pdf}
 	\caption[Hither and Yon]{
 		Representation of hither and yon planes.
 	}
@@ -242,7 +242,16 @@ The last parameter that the camera supports is the \textbf{field of view}. The a
 
 The clipping planes and the angles of view define the viewing volume in our model, also known as the \emph{viewig frustum} (see \figurename~\ref{frustum}).
 
-The user also has the option to use a \textbf{perspective} or \textbf{orthographic} camera depending on what his needs are. An architect for example may prefer an orthographic camera, while a normal user may use a perspective camera that will yield a more natural image as result. 
+The user also has the option to use a \textbf{perspective} or \textbf{orthographic} camera depending on what his needs are. An architect for example may prefer an orthographic camera, while a normal user may use a perspective camera that will yield a more natural image as result (see \figurename~\ref{pers_ort}). 
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.6]{figures/pers_ort.pdf}
+	\caption[Perspective and orthographic camera comparison]{
+		Representation of the difference between a perspective (left) and orthographic camera (right).
+	}
+	\label{pers_ort}
+\end{figure}
 
 Orthographic projection is more commonly used in engineering because dimensions are communicated unambiguously, if there is a one unit length line anywhere in the scene; it will appear the same length everywhere. Also every line that is parallel in the scene will be parallel in reality. With perspective projection, lines of identical real-world length will appear different due to \textit{foreshortening}\footnote{Objects becoming smaller on the image plane as they get further away.}. This is why it will be difficult to judge relative dimensions when objects are far away.
 
@@ -250,11 +259,79 @@ Another option that is available is using a \textbf{FPS}\footnote{First-Person C
 
 \subsection[Inner workings]{Camera inner workings}
 
-Once we have the camera parameters we need to place the camera in the scene, we will use a \emph{look-at} transformation for this purpose. Using the look-at transformation as view matrix will give us a transformation between world and camera coordinates as mentioned before. The next step will depend on the type of camera that the user will choose, either orthogonal or perspective. In light of this a projection matrix will be chosen reflecting the choice. The composition of these matrices will yield the MVP matrix. This is the mathematical expression used for transforming each point:
+Once we have the camera parameters we need to place the camera in the scene, we will use a \emph{look-at} transformation for this purpose. Using the look-at transformation as view matrix will give us a transformation between world and camera coordinates as mentioned before. The matrix is constructed using the position ($p$), orientation ($o$) and up ($u$) vector. 
+
+First, a forward vector $f$ is constructed:
+
+\begin{equation}f = \frac{p - o}{\left \| p - o \right \|}\end{equation}
+
+Next, the right vector $r$ is constructed:
+
+\begin{equation}r = f \times u\end{equation}
+
+After, a new up vector $u'$ is calculated in the camera reference:
+
+\begin{equation}u' = r \times f\end{equation}
+
+With these, a rotation matrix can be constructed representing a reorientation into the newly created orthonormal basis:
+
+\begin{equation}R = \begin{bmatrix}
+r_{x} & u'_{x} & f_{x} & 0\\ 
+r_{y} & u'_{y} & f_{y} & 0\\ 
+r_{z} & u'_{z} & f_{z} & 0\\ 
+0 & 0 & 0 & 1
+\end{bmatrix}\end{equation}
+
+Finally, to transform objects into the camera's frame; not only everything has to be oriented correctly, it also has to be translated from the origin to the position of the camera. This is achieved by concatenating the rotation matrix $R$ with the corresponding translation matrix:
+
+\begin{equation}\label{view}V = \begin{bmatrix}
+r_{x} & u'_{x} & f_{x} & -p_{x}\\ 
+r_{y} & u'_{y} & f_{y} & -p_{y}\\ 
+r_{z} & u'_{z} & f_{z} & -p_{z}\\ 
+0 & 0 & 0 & 1
+\end{bmatrix}\end{equation}
+
+Equation \ref{view} is the resulting  look-at matrix \textbf{\textit{V}} that will be used to transform the points from world space to camera space.
+
+The next step will depend on the type of camera that the user will choose, either orthogonal or perspective. In light of this a projection matrix will be chosen reflecting the choice. 
+
+If a perspective camera is chosen, we have to take into account the foreshortening effect we mentioned before. This projection does not preserve distances or angles, and parallel lines no longer remain parallel. \emph{x} and \emph{y} are not left unchanged, they are modified according to the corresponding \textit{z} value, that dictates how close to the camera the point is (see \figurename~\ref{pers_ort}). To achieve this effect, a perspective projection matrix will be used. A commonly used matrix is the \textit{frustum matrix}. In it the homogeneous space takes the shape of a truncated pyramid. The parameters used to construct this matrix are left ($l$), right ($r$), top ($t$), bottom ($b$), near plane ($n$) and far plane ($f$) of the frustum. 
+
+$t$ is obtained in the following way using the camera parameters field of view ($fov$) and hither ($n$):
+
+\begin{equation}t = n \cdot tan(fov / 2) \end{equation} 
+
+Next, $r$ is obtained using the width ($w$) and height ($h$) of the window:
+
+\begin{equation}r = t \cdot w / h \end{equation}   
+
+Since the frustum is symmetric, $l$ and $b$ will be the same as $r$ and $t$ but with the opposite sign. Once we have all of the parameters we can construct the perspective or orthographic matrices:
+
+\begin{equation}\label{pers}P = \begin{bmatrix}
+\frac{2 \cdot n}{r - l} & 0 & \frac{r + l}{r - l} & 0\\ 
+0 & \frac{2 \cdot n}{t - b} & \frac{t + b}{t - b} & 0\\ 
+0 & 0 & \frac{n + f}{n - f} & \frac{2 \cdot n \cdot f}{n - f}\\ 
+0 & 0 & -1 & 0
+\end{bmatrix}\end{equation}
+
+In contrast, if a orthographic camera is required, a somewhat simpler orthographic projection matrix can be used. Points will be projected to the near viewing plane. This type of transformation does not give the effect of foreshortening, it keeps lines parallel and preserves relative distance between objects. This transformation leaves \emph{x} and \emph{y} coordinates unchanged, but maps \emph{z} values at the hither plane to 0 and \emph{z} values at the yon plane to 1 (see \figurename~\ref{pers_ort}). The parameters used to construct this matrix are also left ($l$), right ($r$), top ($t$), bottom ($b$), near plane ($n$) and far plane ($f$) of the frustum:
+
+\begin{equation}\label{ortho}P = \begin{bmatrix}
+\frac{2}{r - l} & 0 & 0 &  \frac{l + r}{l - r}\\ 
+0 & \frac{2}{t - b} & 0 & \frac{b + t}{b - t}\\ 
+0 & 0 & \frac{2}{n - f} & \frac{n + f}{f - n}\\ 
+0 & 0 & 0 & 1
+\end{bmatrix}\end{equation}
+
+One of these two matrices (\ref{pers} or \ref{ortho}) will represent the projection matrix \textbf{\textit{P}}.
+
+The composition of these matrices will yield the MVP matrix \cite{OGLSB}. This is the mathematical expression used for transforming each point:
 
 \begin{equation}\begin{split}v' & = \textbf{\textit{P}}\cdot \textbf{\textit{V}} \cdot \textbf{\textit{M}} \cdot v \\ & = \textbf{\textit{MVP}} \cdot v\end{split}\end{equation}    
 
 Once we have the MVP matrix, we can perform \emph{frustum culling}. The visualizer selects the only the points that fall inside the \emph{viewing frustum} (see \figurename~\ref{frustum}). This is a essential process to achieve the necessary performance to be able to render the point clouds in real-time. The viewing frustum is the region of space that will appear in the images generated by the visualizer. This process of eliminating objects that are outside the viewing frustum is called \emph{viewing frustum culling}.
+
+Once we have the adequate coordinates we just have to map them to screen space depending on the resolution of the render. If two points are mapped to the same pixel we have to see which one is closer in the \emph{z} axis, because that will be the point that the pixel is going to represent.
 
 \begin{figure}[h]
 	\centering
@@ -267,10 +344,6 @@ Once we have the MVP matrix, we can perform \emph{frustum culling}. The visualiz
 
 These computations are costly when the scenes are big and to simplify the culling process we need an acceleration structure. These structures reject chunks of the scene that are not inside the frustum. In our project we have chosen to use a multi-resolution \emph{k-d tree}.
 
-If an orthographic transformation is used, points will be projected to the far viewing plane. This type of transformation does not give the effect of foreshortening, it keeps lines parallel and preserves relative distance between objects. This transformation leaves \emph{x} and \emph{y} coordinates unchanged, but maps \emph{z} values at the hither plane to 0 and \emph{z} values at the yon plane to 1.
-
-Once we have the adequate coordinates we just have to map them to screen space depending on the resolution of the render. If two points are mapped to the same pixel we have to see which one is closer in the \emph{z} axis, because that will be the point that the pixel is going to represent.
-
 \begin{figure}[h]
 	\centering
 	\includegraphics[scale=0.5]{figures/cam_rotation.pdf}
@@ -280,10 +353,10 @@ Once we have the adequate coordinates we just have to map them to screen space d
 	\label{FPS_rot}
 \end{figure}
 
-If on the contrary we chose to use a perspective camera, we have to take into account the foreshortening effect we mentioned before. This projection does not preserve distances or angles, and parallel lines no longer remain parallel. \emph{x} and \emph{y} are not left unchanged, they are modified according to the corresponding \textit{z} value, that dictates how close to the camera the point is.
-
 This is the course of action followed to create one frame, but since the visualizer is interactive, we have to repeat this process several times per second. Furthermore, we have to take into account how the user wants to move. If the FPS camera option is chosen, we start in a certain position and then we will be able to move forward, backward, left and right just as we would be able to do if we were walking around the scene in reality. The user will also be able to look around with complete freedom (see \figurename~\ref{FPS_rot}). \textit{Yaw} allows the user to look left and right and \textit{pitch} up and down.   
- 
+
+When the orbital camera is used, instead of freely walking around, we orbit around a center point (see \figurename~\ref{orb_rot}). The rotation in this instance is represented by a number of rotation degrees ($\alpha$ and $\beta$) around the $x$ and $y$ axes of a coordinate system centered in the interest point. Instead of moving the camera, we move the point of interest, that will be followed by the camera.  
+
 \begin{figure}[h]
 	\centering
 	\includegraphics[scale=0.8]{figures/orb_rot.pdf}
@@ -292,8 +365,6 @@ This is the course of action followed to create one frame, but since the visuali
 	}
 	\label{orb_rot}
 \end{figure}
-
-When the orbital camera is used, instead of freely walking around, we orbit around a center point (see \figurename~\ref{orb_rot}). The rotation in this instance is represented by a number of rotation degrees ($\alpha$ and $\beta$) around the $x$ and $y$ axes of a coordinate system centered in the interest point. Instead of moving the camera, we move the point of interest, that will be followed by the camera.  
 
 
 
