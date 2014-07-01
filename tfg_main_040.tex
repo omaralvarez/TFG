@@ -1,0 +1,82 @@
+%
+% TÍTULO DEL CAPÍTULO
+%
+\chapter[Structure]{
+	Structure of a point-based visualizer
+	\label{chapter_4}
+}
+
+In this chapter, the structure of PCM and ToView is shown. Thus, a high level description of the pipeline is done, which serves as a summary of the analysis phase for this project. The different stages of the pipeline are thoroughly described in the following chapters. Finally, a class diagram depicts the main design aspects of ToView and the updated version of PCM. 
+
+\section[Analysis]{Analysis}
+
+\begin{figure}
+        \vspace*{0.5cm}
+                \centering
+				\includegraphics[scale=0.6]{figures/pipeline.pdf}
+                \caption[BDE pipeline]{
+                        Representation of the usage pipeline of ToView.
+                }
+                \label{pipeline}
+        \vspace*{0.5cm}
+\end{figure}
+
+\figurename~\ref{pipeline} depicts the usage pipeline of ToView. To use the system, a series of steps have to be followed. First, the raw LiDAR data is usually processed using software from the manufacturer (unifying scans, calibration, etc.). Once the resulting point cloud from the aforementioned software is available, it will be converted to our point cloud format. 
+
+Next, the k-d tree for accelerating calculations and rendering is created. When the k-d is created and stored in permanent memory, it can be used to estimate radii, normals, apply filters, etc. It can also be used to visualize the point clouds in an efficient way, since we have massive datasets and visualizing them in a naive way is not possible. 
+
+In addition, multiple point clouds can be merged using the visualizer. The user will be able to apply transformations (rotation, scaling and translation) to the individual clouds. This allows the user to for example mix a point cloud that represents a statue with another of its destination, and see in advance how it will look.
+
+ToView can also be used to measure distances in point clouds that were registered with this purpose in mind. Lastly, the visualizer can be used to segment parametric primitives (planes, cylinders and spheres) and export them to a CAD compatible format.        
+
+\section[Design]{Design}
+ 
+ToView is developed following an object oriented approach and using the C++ language \cite{primerplus}. In addition, design patterns have been used as much as possible. The compilers used until now have been Visual C++ 2012 and 2013 in Windows systems and GCC 4 in Linux. For the creation of multi-platform project files, we have made available a CMake \cite{cmake} makefile for PCM and ToView. 
+
+\subsection[Use cases]{Use cases}
+
+Bla bla
+
+\subsection[Class diagram]{Class diagram}
+
+Now that we have exposed the conceptual approach, we show the class diagram of the engine. It will be further explained in the next chapters.
+
+\begin{figure}[h]
+                \centering
+                \includegraphics[scale=0.6]{figures/PCM.pdf}
+                \caption[PCM class diagram]{
+                        PCM class diagram.
+                }
+                \label{class_dia}
+\end{figure}
+
+On one hand we have the library \textbf{PCM} (see \figurename~\ref{class_dia}) that consists of:
+
+\textbf{Chunk} represents the minimum amount of information that will travel across the different levels of memory, that is why its size in bytes will be closely controlled. \textbf{BinPCHandler} is the intermediate compacted format (BPC) in the format conversion process and the spatial structure construction, its objective is representing an arbitrary length array of data that resides in permanent storage. \textbf{PCConverter} is the class in charge of offering a single interface to convert any type of point cloud file.
+
+The spatial structure is represented by \textbf{PCTree}. This class encapsulates two main functionalities, the construction of the chunk database and the multi-resolution tree management and its nodes. \textbf{PCTreeNode} contains information about the nodes that make up the spatial structure. 
+
+Next, the classes associated with memory management will be briefly described. \textbf{L2Cache} is the class responsible of the exchange of data between HDD and RAM. \textbf{L1Cache} is in charge of transferring data between RAM and VRAM. Both classes use \textbf{CacheStatsManager} to keep track of several statistics, like hit rate, miss rate, etc. 
+
+\begin{figure}[h]
+                \centering
+                \includegraphics[scale=0.6]{figures/ToView.pdf}
+                \caption[ToView class diagram]{
+                        ToView class diagram.
+                }
+                \label{class_dia_tov}
+\end{figure}
+
+\textbf{PointCloud} represents a complete dataset and is the external interface of the library. It will allow the user to request information about the dataset, to load a region, apply a certain operation, etc. This class is accompanied by \textbf{PCMConfig} that stores several information about the characteristics of the point cloud.
+
+On the other hand we have the visualizer \textbf{ToView} (see \figurename~\ref{class_dia_tov}) that is formed by:
+
+\textbf{MainWindow} is the class that represents the main window of the visualizer. It contains the navigation menus and the widget in which the rendering will be done. The \textbf{Settings} class is where all the information related to the configuration of ToView will be stored and provides the interface to modify it. \textbf{Segmentator} is in charge of providing the interface for the user to be able to control and use the segmentation feature of the visualizer and modify its settings.
+
+\textbf{QGLFrame} is responsible for creating the OpenGL context. It is also in charge of processing mouse and keyboard events. The rendering thread \textbf{QGLRenderThread} will also be launched from this class. As the name implies, this is the class that renders the point clouds. 
+
+\textbf{PointSampler} will allow the user to sample points from a point cloud to be able to measure distances or segment primitives later. \textbf{CloudSegmentator} is the class responsible for segmenting and exporting the supported primitives.     
+
+
+
+
