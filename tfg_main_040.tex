@@ -35,7 +35,417 @@ ToView is developed following an object oriented approach and using the C++ lang
 
 \subsection[Use cases]{Use cases}
 
-Bla bla
+In this subsection, the uses of the software package from the user point of view will be detailed. In our system there will be two types of actors, a normal user and a developer. The normal user will use the interface to interact with our software, while the developer will use the library to run its own algorithms to point clouds of arbitrary size. 
+
+We now proceed to detail the use cases presented on \figurename~\ref{use_case_user}:
+
+\begin{figure}[p]
+                \centering
+                \includegraphics[scale=1.2]{figures/user.pdf}
+                \caption[ToView interaction use case diagram]{
+                        ToView interation use case diagram.
+                }
+                \label{use_case_user}
+\end{figure}
+
+\newpage
+
+\begin{usecase}
+
+	\addtitle{Use Case 1}{Visualize cloud} 
+	
+	%Scope: the system under design
+	\addfield{Scope:}{System-wide}
+	
+	%Primary Actor: Calls on the system to deliver its services.
+	\addfield{Primary Actor:}{User}
+	
+	%Preconditions: What must be true on start and worth telling the reader?
+	\addfield{Preconditions:}{}
+	%when multiple
+	%\additemizedfield{Preconditions:}{} 
+	
+	%Postconditions: What must be true on successful completion and worth telling the reader
+	\addfield{Postconditions:}{}
+	%when multiple
+	%\additemizedfield{Preconditions:}{}
+	
+	%Main Success Scenario: A typical, unconditional happy path scenario of success.
+	\addscenario{Main Success Scenario:}{
+		\item User starts ToView
+		\item Converts dataset to BPC format
+		\item Builds k-d tree
+		\item Opens k-d tree folder
+		\item Moves around the scene
+		\item Closes the visualizer
+	}
+	
+	%Extensions: Alternate scenarios of success or failure.
+	\addscenario{Extensions:}{
+		\item[3.a] Error building k-d tree:
+			\begin{enumerate}
+			\item[1.] System shows failure message
+			\item[2.] User returns to step 2
+			\end{enumerate}
+		\item[4.a] No k-d tree present in folder:
+			\begin{enumerate}
+			\item[1.] System shows failure message
+			\item[2.] User returns to step 3
+			\end{enumerate}
+	}
+	
+	%Miscellaneous: Such as open issues/questions
+	%\addfield{Open Issues:}{}
+
+\end{usecase}
+
+\pagebreak
+
+\begin{usecase}
+
+	\addtitle{Use Case 2}{Modify cloud} 
+	
+	%Scope: the system under design
+	\addfield{Scope:}{System-wide}
+	
+	%Primary Actor: Calls on the system to deliver its services.
+	\addfield{Primary Actor:}{User}
+	
+	%Preconditions: What must be true on start and worth telling the reader?
+	\addfield{Preconditions:}{Having a k-d tree}
+	%when multiple
+	%\additemizedfield{Preconditions:}{} 
+	
+	%Postconditions: What must be true on successful completion and worth telling the reader
+	\addfield{Postconditions:}{}
+	%when multiple
+	%\additemizedfield{Preconditions:}{}
+	
+	%Main Success Scenario: A typical, unconditional happy path scenario of success.
+	\addscenario{Main Success Scenario:}{
+		\item User starts ToView
+		\item Opens k-d tree folder
+		\item Chooses operation to perform
+		\item The system applies the operation 
+		\item[] \textit{The steps 3-4 are repeated for each operation desired}
+		\item Closes the visualizer
+	}
+	
+	%Extensions: Alternate scenarios of success or failure.
+	\addscenario{Extensions:}{
+		\item[2.a] No k-d tree present in folder:
+			\begin{enumerate}
+			\item[1.] System shows failure message
+			\item[2.] User returns to step 1
+			\end{enumerate}
+	}
+	
+	%Miscellaneous: Such as open issues/questions
+	%\addfield{Open Issues:}{}
+
+\end{usecase}
+
+\pagebreak
+
+\begin{usecase}
+
+	\addtitle{Use Case 3}{Apply utilities} 
+	
+	%Scope: the system under design
+	\addfield{Scope:}{System-wide}
+	
+	%Primary Actor: Calls on the system to deliver its services.
+	\addfield{Primary Actor:}{User}
+	
+	%Preconditions: What must be true on start and worth telling the reader?
+	\addfield{Preconditions:}{Having a k-d tree}
+	%when multiple
+	%\additemizedfield{Preconditions:}{} 
+	
+	%Postconditions: What must be true on successful completion and worth telling the reader
+	\addfield{Postconditions:}{}
+	%when multiple
+	%\additemizedfield{Preconditions:}{}
+	
+	%Main Success Scenario: A typical, unconditional happy path scenario of success.
+	\addscenario{Main Success Scenario:}{
+		\item User starts ToView
+		\item Opens k-d tree folder
+		\item Chooses filter, radii or normal estimation 
+		\item The system applies the utility 
+		\item[] \textit{The steps 3-4 are repeated for each utility}
+		\item The system or User saves the changes
+		\item User closes the visualizer
+	}
+	
+	%Extensions: Alternate scenarios of success or failure.
+	\addscenario{Extensions:}{
+		\item[2.a] No k-d tree present in folder:
+			\begin{enumerate}
+			\item[1.] System shows failure message
+			\item[2.] User returns to step 1
+			\end{enumerate}
+	}
+	
+	%Miscellaneous: Such as open issues/questions
+	%\addfield{Open Issues:}{}
+
+\end{usecase}
+
+\pagebreak
+
+\begin{usecase}
+
+	\addtitle{Use Case 4}{Segment primitive} 
+	
+	%Scope: the system under design
+	\addfield{Scope:}{System-wide}
+	
+	%Primary Actor: Calls on the system to deliver its services.
+	\addfield{Primary Actor:}{User}
+	
+	%Preconditions: What must be true on start and worth telling the reader?
+	\addfield{Preconditions:}{Having a k-d tree}
+	%when multiple
+	%\additemizedfield{Preconditions:}{} 
+	
+	%Postconditions: What must be true on successful completion and worth telling the reader
+	\addfield{Postconditions:}{}
+	%when multiple
+	%\additemizedfield{Preconditions:}{}
+	
+	%Main Success Scenario: A typical, unconditional happy path scenario of success.
+	\addscenario{Main Success Scenario:}{
+		\item User starts ToView
+		\item Opens k-d tree folder
+		\item Selects the primitive segmentation settings 
+		\item Selects a point in the dataset 
+		\item System samples neighborhood
+		\item System segments primitive
+		\item[] \textit{The steps 3-6 are repeated for each primitive}
+		\item User closes the visualizer
+	}
+	
+	%Extensions: Alternate scenarios of success or failure.
+	\addscenario{Extensions:}{
+		\item[2.a] No k-d tree present in folder:
+			\begin{enumerate}
+			\item[1.] System shows failure message
+			\item[2.] User returns to step 1
+			\end{enumerate}
+		\item[4.a] No points selected:
+			\begin{enumerate}
+			\item[1.] System shows failure message
+			\item[2.] User returns to step 3
+			\end{enumerate}
+	}
+	
+	%Miscellaneous: Such as open issues/questions
+	%\addfield{Open Issues:}{}
+
+\end{usecase}
+
+\pagebreak
+
+\begin{usecase}
+
+	\addtitle{Use Case 5}{Measure distance} 
+	
+	%Scope: the system under design
+	\addfield{Scope:}{System-wide}
+	
+	%Primary Actor: Calls on the system to deliver its services.
+	\addfield{Primary Actor:}{User}
+	
+	%Preconditions: What must be true on start and worth telling the reader?
+	\addfield{Preconditions:}{Having a k-d tree}
+	%when multiple
+	%\additemizedfield{Preconditions:}{} 
+	
+	%Postconditions: What must be true on successful completion and worth telling the reader
+	\addfield{Postconditions:}{}
+	%when multiple
+	%\additemizedfield{Preconditions:}{}
+	
+	%Main Success Scenario: A typical, unconditional happy path scenario of success.
+	\addscenario{Main Success Scenario:}{
+		\item User starts ToView
+		\item Opens k-d tree folder
+		\item Selects to measure distance
+		\item Selects a point in the dataset 
+		\item Selects another point
+		\item System outputs distance
+		\item[] \textit{The steps 3-6 are repeated for each measurement}
+		\item User closes the visualizer
+	}
+	
+	%Extensions: Alternate scenarios of success or failure.
+	\addscenario{Extensions:}{
+		\item[2.a] No k-d tree present in folder:
+			\begin{enumerate}
+			\item[1.] System shows failure message
+			\item[2.] User returns to step 1
+			\end{enumerate}
+		\item[4-5.a] No points selected:
+			\begin{enumerate}
+			\item[1.] System shows failure message
+			\item[2.] User returns to step 3
+			\end{enumerate}
+	}
+	
+	%Miscellaneous: Such as open issues/questions
+	%\addfield{Open Issues:}{}
+
+\end{usecase}
+
+\pagebreak
+
+\begin{usecase}
+
+	\addtitle{Use Case 6}{Export data} 
+	
+	%Scope: the system under design
+	\addfield{Scope:}{System-wide}
+	
+	%Primary Actor: Calls on the system to deliver its services.
+	\addfield{Primary Actor:}{User}
+	
+	%Preconditions: What must be true on start and worth telling the reader?
+	\addfield{Preconditions:}{Successful segmentation made}
+	%when multiple
+	%\additemizedfield{Preconditions:}{} 
+	
+	%Postconditions: What must be true on successful completion and worth telling the reader
+	\addfield{Postconditions:}{}
+	%when multiple
+	%\additemizedfield{Preconditions:}{}
+	
+	%Main Success Scenario: A typical, unconditional happy path scenario of success.
+	\addscenario{Main Success Scenario:}{
+		\item User selects export type
+		\item Inputs the output file name
+		\item System exports the corresponding data
+	}
+	
+	%Extensions: Alternate scenarios of success or failure.
+	\addscenario{Extensions:}{
+		\item[2.a] Invalid file name:
+			\begin{enumerate}
+			\item[1.] System shows failure message
+			\item[2.] User returns to step 1
+			\end{enumerate}
+	}
+	
+	%Miscellaneous: Such as open issues/questions
+	%\addfield{Open Issues:}{}
+
+\end{usecase}
+
+\pagebreak
+
+Next, the use cases on \figurename~\ref{use_case_developer} will be specified:
+
+\begin{figure}[h]
+                \centering
+                \includegraphics[scale=0.8]{figures/developer.pdf}
+                \caption[ToView developer use case diagram]{
+                        ToView developer use case diagram.
+                }
+                \label{use_case_developer}
+\end{figure}
+
+\pagebreak
+
+\begin{usecase}
+
+	\addtitle{Use Case 7}{Run algorithm} 
+	
+	%Scope: the system under design
+	\addfield{Scope:}{System-wide}
+	
+	%Primary Actor: Calls on the system to deliver its services.
+	\addfield{Primary Actor:}{Developer}
+	
+	%Preconditions: What must be true on start and worth telling the reader?
+	\addfield{Preconditions:}{}
+	%when multiple
+	%\additemizedfield{Preconditions:}{} 
+	
+	%Postconditions: What must be true on successful completion and worth telling the reader
+	\addfield{Postconditions:}{}
+	%when multiple
+	%\additemizedfield{Preconditions:}{}
+	
+	%Main Success Scenario: A typical, unconditional happy path scenario of success.
+	\addscenario{Main Success Scenario:}{
+		\item Developer selects algorithm 
+		\item Uses PCM's external interface to implement algorithm
+		\item Selects precision desired
+		\item Converts cloud to .BPC
+		\item Creates k-d tree
+		\item The system executes the algorithm
+		\item The system displays or saves result
+	}
+	
+	%Extensions: Alternate scenarios of success or failure.
+	\addscenario{Extensions:}{
+		\item[5.a] Error building k-d tree:
+			\begin{enumerate}
+			\item[1.] System shows failure message
+			\item[2.] User returns to step 2
+			\end{enumerate}
+	}
+	
+	%Miscellaneous: Such as open issues/questions
+	%\addfield{Open Issues:}{}
+
+\end{usecase}
+
+\pagebreak
+
+\begin{usecase}
+
+	\addtitle{Use Case 8}{Query cloud} 
+	
+	%Scope: the system under design
+	\addfield{Scope:}{System-wide}
+	
+	%Primary Actor: Calls on the system to deliver its services.
+	\addfield{Primary Actor:}{Developer}
+	
+	%Preconditions: What must be true on start and worth telling the reader?
+	\addfield{Preconditions:}{Having a k-d tree}
+	%when multiple
+	%\additemizedfield{Preconditions:}{} 
+	
+	%Postconditions: What must be true on successful completion and worth telling the reader
+	\addfield{Postconditions:}{}
+	%when multiple
+	%\additemizedfield{Preconditions:}{}
+	
+	%Main Success Scenario: A typical, unconditional happy path scenario of success.
+	\addscenario{Main Success Scenario:}{
+		\item Developer selects k-d tree 
+		\item Uses PCM's external interface to make a query
+		\item The system obtains the requested parts of the cloud
+		\item Developer uses the provided information for a certain purpose
+	}
+	
+	%Extensions: Alternate scenarios of success or failure.
+	\addscenario{Extensions:}{
+		\item[1.a] No k-d tree present in folder:
+			\begin{enumerate}
+			\item[1.] System shows failure message
+			\item[2.] User returns to step 1
+			\end{enumerate}
+	}
+	
+	%Miscellaneous: Such as open issues/questions
+	%\addfield{Open Issues:}{}
+
+\end{usecase}
+
+\pagebreak
 
 \subsection[Class diagram]{Class diagram}
 
