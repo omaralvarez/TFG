@@ -48,7 +48,7 @@ First, in the lowest level, reside the binary files of each chunk. In the next l
 
 These concepts will be further explained in the next subsections. 
 
-\subsection[L1]{Synchronous cache L1}
+\subsection[L1]{L1 cache}
 
 The first level cache (L1) is in charge of managing the storing and loading of data between primary memory (RAM) and video memory (VRAM). This cache level has been completely reworked, and also has been given the ability to not only load but also store information in primary memory. Even having a similar structure to the L2 cache, because of the characteristics of GPU processes, its operation is synchronous. 
 
@@ -63,7 +63,7 @@ Its biggest responsibility, apart from the corresponding memory hierarchy manage
 	\label{l1_cache}
 \end{figure}
 
-The following list will explain each of the fields that make up the cache structure:
+The following list will explain each of the fields that make up the cache structure (see \autoref{l1_cache}):
 
 \begin{itemize}
 	\item \textbf{Chunk ID:} Id of the chunk stored in L1 cache.
@@ -122,29 +122,76 @@ This process is completely transparent for the user, that will only have to use 
  }
 \end{lstlisting}
 
-\subsection[L2]{Asynchronous cache L2}
+\subsection[L2]{L2 cache}
 
 The second level cache L2, will be in charge of transferring data (chunks) from disk to system memory (RAM). The replacement policy used in this cache is LRU \cite{taibo} as this is the most adequate policy for these types of systems. 
 
 To better use the resources available nowadays (multi-core CPUs), this cache will run on its own thread. Also since the massive datasets that we will deal with require a lot of computational power for even the simplest operations, this cache will be prepared to deal with simultaneous requests from different work threads. All of this is achieved with careful use of \textit{mutex}\footnote{A synchronization mechanism for enforcing limits on access to a resource in an environment where there are many threads of execution.} and \textit{semaphores}\footnote{A variable or abstract data type that is used for controlling access, by multiple processes, to a common resource in a parallel programming or a multi user environment.}. 
 
-This cache is also capable of not only reading data from the HDD, but is also capable of writing modified data from RAM to disk. This is achieved in a similar fashion as in L1. A complete loop over the whole cloud to perform an operation using the CPU can be seen in \autoref{l2_write}.
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.9]{figures/L2.pdf}
+	\caption[L2 structure]{
+		L2 cache structure.
+	}
+	\label{l2_structure}
+\end{figure}
 
+The following list will explain each of the cache structure fields (see \autoref{l2_structure}):
+
+\begin{itemize}
+	\item \textbf{Chunk ID:} Id of the chunk stored in L2 cache.
+	\item \textbf{Position:} Position of the chunk in the structure that contains all of them.
+	\item \textbf{Time:} Time in which the node was last accessed.
+\end{itemize} 
+
+Next, the responsibilities of the L2 cache are:
+
+\begin{itemize}
+	\item Load petition lists from disk that are requested by the upper cache level (L1).
+	\item Keep a ``repository'' of recently loaded chunks, that because of the nature of the spatial structure, will be utilized again with a high probability. 
+	\item Ask the spatial structure which files correspond to the requested nodes.
+	\item Keep memory coherence of the system, with a Map that matches node IDs with their corresponding chunk in memory. 
+	\item If the user desires it, write changes to disk.   
+\end{itemize} 
+
+The main loop can be summed up in the following actions. First, it waits until a new petition arrives, when it does, it loads the requested nodes in order. If during the loading of the list a new one appears, the old one is discarded and the process begins again.
+
+This cache can work in one of two ways:
+
+\begin{itemize}
+	\item \textbf{Synchronous:} A node is requested and loaded immediately. 
+	\item \textbf{Asynchronous:} A list of nodes is requested and they are loaded in order as soon as possible.
+\end{itemize}
+
+This cache is capable of not only reading data from the HDD, but also writing modified data from RAM to disk. This is achieved in a similar fashion to the L1. A complete loop over the whole cloud to perform an operation using the CPU and then writing it to disk, can be seen in \autoref{l2_write}.
+\\
 \lstset{emph={PointCloud,Chunk}, emphstyle=\color{Emerald}\bfseries,
-		emph={[2]setChunkWriteL2,getNeighborData,getChunkL2,makeChanges,freeChunkL2}, emphstyle={[2]\color{PineGreen}},label={l2_write}}
+		emph={[2]setChunkWriteL2,getNextData,getChunkL2,makeChanges,freeChunkL2}, emphstyle={[2]\color{PineGreen}},label={l2_write}}
 \begin{lstlisting}
  PointCloud cloud(...);
 
- while (cloud.getNeighborData(list)) {
+ while (cloud.getNextData(list)) {
  	for (auto& node:list) {		
-		Chunk c;
-		cloud.getChunkL2(node, c);
-		makeChanges(c);
+		Chunk chunk;
+		cloud.getChunkL2(node, chunk);
+		makeChanges(chunk);
 		cloud.setChunkWriteL2(node);	
 		cloud.freeChunkL2(node);	
 	}
  }
 \end{lstlisting}
+
+The cache hit rate will be really high, because of the topology of the spatial structure. If an algorithm needs to reach the maximum level of detail in different zones, because the levels are additive, it will have to add up all the information contained in the node path from the root to the leaf. But in regions of space that are close, that means they will share a lot of nodes (see \autoref{node_sharing}). 
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.6]{figures/node_sharing.pdf}
+	\caption[Common nodes close paths]{
+		Two node paths spatially close (3 and 4), in order to reach the maximum level of detail (level 2) share nodes 0 and 1.
+	}
+	\label{node_sharing}
+\end{figure}
 
 \subsection[Chunks]{Chunks}
 \subsection[Chunks]{PCMBenchmark}
