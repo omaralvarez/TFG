@@ -39,7 +39,47 @@ The supported point cloud input formats are:
 	\item \textbf{BPC:} Our own binary point cloud data format. It stores information about the cloud and individual points. Each point can have: $(x,y,z) + (R,G,B) + radius + (n_{x},n_{y},n_{z}) + etc$.
 \end{itemize}  
 
-Because of the size that this files can reach, they normally are split in several smaller files that range from 500 MB to 1,5 GB. Because of this reason, the ability to read multiple point cloud files in a folder automatically will be also added. 
+Because of the size that this files can reach, they normally are split in several smaller files that range from 500 MB to 1,5 GB. Because of this reason, the ability to read multiple point cloud files in a folder automatically will also be added. 
+
+\subsection[BPC]{Binary Point Cloud}
+
+The point cloud format created for this project (BPC) will now be detailed. It is a binary format that is comprised of a \textbf{header} and the \textbf{point cloud data}. 
+
+The header will contain the following information:
+
+\begin{itemize}
+	\item \textbf{Number of points:} The number of points contained in the file.
+	\item \textbf{Data size:} Size of the data that accompanies the point (normals, radii, etc.). 
+	\item \textbf{Bounding box:} Information of the bounding box that contains the point cloud.
+	\item \textbf{Radii:} Indicates if the dataset contains point radii.
+	\item \textbf{Normals:} Specifies if the point normals are available.
+\end{itemize}  
+
+The rest of the file will contain the point cloud data. The data will be stored contiguously point after point as can be seen in \autoref{chunk} to minimize the file size.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.8]{figures/chunk.pdf}
+	\caption[Chunk structure]{
+		Chunk structure.
+	}
+	\label{chunk}
+\end{figure}
+
+A BPC file is treated like a single chunk that contains the whole cloud, so all of this information is also valid for chunks. A chunk will be the minimum amount of information that the memory hierarchy will deal with. When rendering, the whole cloud will not be stored in a single chunk, since this would not be efficient. Instead, the points in the nodes of the multi-resolution structure will each be stored in a chunk, and the cloud will be an aggregate of all the chunks (see \autoref{chunk_tree}). 
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.8]{figures/chunk_tree.pdf}
+	\caption[Internal tree structure]{
+		Internal tree structure. Each node is stored in a chunk file.
+	}
+	\label{chunk_tree}
+\end{figure}
+
+The only difference between a BPC file and a chunk, is that because the size of a BPC file will be much greater. Therefore it will not be possible to load the complete file at once, and we will rely on an interface class, \textbf{\textcolor{Emerald}{BinPCHandler}}. This interface works in a similar manner to an array in system memory, but accessing permanent memory in an efficient way (this class will be further explained in the TODO desing section). 
+
+\subsection[Output]{Output}
 
 \section[Memory hierarchy]{Memory hierarchy}
 
@@ -228,16 +268,16 @@ In order for PCMBenchmark to work it uses a certain directory structure:
 	\item \textbf{trees:} Automatically created directory that contains automatically generated k-d trees.
 \end{itemize} 
 
-Once the user has the directory structure created, its just a matter of copying and pasting to test PCM in different machines. The process will be completely transparent for the user that will only need to check the resulting graphs (see ).
-
 \begin{figure}[h]
 	\centering
 	\includegraphics[scale=0.7]{figures/benchmark.png}
 	\caption[Sample PCMBenchmark output]{
 		A sample output graph created by the benchmark suite.
 	}
-	\label{node_sharing}
+	\label{benchmark}
 \end{figure}
+
+Once the user has the directory structure created, its just a matter of copying and pasting to test PCM in different machines. The process will be completely transparent for the user that will only need to check the resulting graphs (see \autoref{benchmark}).
 
 The outputs that the benchmark suite creates are:
 
@@ -254,3 +294,5 @@ The only system requirements are:
 	\item \textbf{MatPlotLib}
 	\item \textbf{NumPy}
 \end{itemize} 
+
+With this tool the testing in multi-platform environments is greatly simplified.
