@@ -19,6 +19,28 @@
 	\label{kd_tree}
 \end{figure}
 
+\section[I/O]{Input and output}
+
+This project will support a certain number of common point cloud data input formats. Furthermore, it can also output point cloud or geometric data in certain formats. In this section we will explain all the details related to these two subjects.   
+
+\subsection[Supported point cloud formats]{Supported point cloud formats}
+
+Several new point formats have been added to the capabilities of the point cloud converter utility. PCM will identify automatically the point cloud format and convert it to our own format transparently for the user. 
+
+The supported point cloud input formats are:
+
+\begin{itemize}
+	\item \textbf{PTS:} Common ASCII point data format. The first line has the number of points to read, and the rest of the lines all the point data: $(x,y,z) + reflectivity + (R,G,B)$.
+	\item \textbf{PTX:} ASCII laser scanning format. The first lines have information about the scan and the number of points scanned. The rest of the lines contain all the point data: $(x,y,z) + reflectivity + (R,G,B)$. 
+	\item \textbf{ASC:} Common ASCII point data format in which every line contains information about each point in the cloud: $(x,y,z) + reflectivity + (R,G,B)$.
+	\item \textbf{LAS:} Binary laser scanning format, it contains all sorts of information about the scan and the point data that can include: $(x,y,z) + reflectivity + (R,G,B)$.
+	\item \textbf{PLY:} PLY is a computer file format known as the Polygon File Format or the Stanford Triangle Format. It can be binary or ASCII, and the project supports both. It contains the following information: $(x,y,z) + (R,G,B) + (n_{x},n_{y},n_{z})$.
+	\item \textbf{PCD:} The point cloud format of one of the most used point cloud libraries, \textbf{PCL} \cite{PCL}. As the preceding format, it can be binary or ASCII. Each point can have: $(x,y,z) + (R,G,B)$.   
+	\item \textbf{BPC:} Our own binary point cloud data format. It stores information about the cloud and individual points. Each point can have: $(x,y,z) + (R,G,B) + radius + (n_{x},n_{y},n_{z}) + etc$.
+\end{itemize}  
+
+Because of the size that this files can reach, they normally are split in several smaller files that range from 500 MB to 1,5 GB. Because of this reason, the ability to read multiple point cloud files in a folder automatically will be also added. 
+
 \section[Memory hierarchy]{Memory hierarchy}
 
 One of the principal concepts in PCM is the memory hierarchy management, that is made up of two levels of cache. When it is known that the data that is going to be used is related in some way and the different access types, software caches can yield substantial improvements in the performance of the system. In this case, we work mainly with geometric information obtained from real environments and the cache hierarchy will allow us to exploit the spatial coherence in the data.  
@@ -193,5 +215,42 @@ The cache hit rate will be really high, because of the topology of the spatial s
 	\label{node_sharing}
 \end{figure}
 
-\subsection[Chunks]{Chunks}
-\subsection[Chunks]{PCMBenchmark}
+\subsection[PCM Benchmark]{PCM Benchmark}
+
+Since we wanted to have a quick and convenient way to test PCM, we created this utility in \textit{Python} to achieve this purpose. PCMBenchmark is a Python benchmark suite that automatically tests PCM and outputs the corresponding metrics for the user to see or use. 
+
+In order for PCMBenchmark to work it uses a certain directory structure:
+
+\begin{itemize}
+	\item \textbf{bin:} With \textbf{debug} and \textbf{release} sub-directories that contain the corresponding PCM executables (user creation required).
+	\item \textbf{dataset:} Contains the test dataset (user creation required).
+	\item \textbf{data:} Automatically created directory that contains testing data. This is raw data just in case the user will want to process the data on its own.
+	\item \textbf{trees:} Automatically created directory that contains automatically generated k-d trees.
+\end{itemize} 
+
+Once the user has the directory structure created, its just a matter of copying and pasting to test PCM in different machines. The process will be completely transparent for the user that will only need to check the resulting graphs (see ).
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.7]{figures/benchmark.png}
+	\caption[Sample PCMBenchmark output]{
+		A sample output graph created by the benchmark suite.
+	}
+	\label{node_sharing}
+\end{figure}
+
+The outputs that the benchmark suite creates are:
+
+\begin{itemize}
+	\item \textbf{Graphs:} Available in the root directory as a series of .png files. This is the most user friendly output of the tool, a series of graphs that show the metrics in a graphical sense.
+	\item \textbf{System information:} Stored in a text file called \textit{sys\_info.txt} that contains common system info.
+	\item \textbf{Raw data:} Automatically generated data to create the graphs. Suitable for further processing by an advanced user.
+\end{itemize} 
+
+The only system requirements are:
+
+\begin{itemize}
+	\item \textbf{Python 3.3}
+	\item \textbf{MatPlotLib}
+	\item \textbf{NumPy}
+\end{itemize} 
