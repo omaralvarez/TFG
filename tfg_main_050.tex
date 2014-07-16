@@ -10,14 +10,83 @@
 
 \section[Design]{Design}
 
+PCM is also developed following an object oriented approach and using the C++ language. The compilers used are the same as in the visualizer. The technologies chosen are also the same with an addition. For GPGPU programming we have chosen OpenCL, because of its inter-operation capabilities with OpenGL. This will allow us to process directly data that already resides in the GPU, without having to do expensive memory transfers. Because of the open nature of OpenCL, the software will be able to run on any graphics card vendor (AMD, NVIDIA or Intel) and the SO that the user prefers (Windows, MacOS or Linux).
+
+\subsection[Dataset conversion and management]{Dataset conversion and management}
+\label{subsec:conv}
+
 \begin{figure}[h]
 	\centering
-	%\includegraphics[scale=0.7]{/Users/osurfer3/Dropbox/PFC/Memoria/pfc/eps/kd_tree.eps}
-	\caption[k-d tree]{
-		Bounding box splitting process.
+	\includegraphics[scale=0.7]{figures/conv_man.pdf}
+	\caption[Conversion and management of datasets class diagram]{
+		Class diagram of the dataset conversion and management classes.
 	}
-	\label{kd_tree}
+	\label{conv_man}
 \end{figure}
+
+In the diagram in \autoref{conv_man}, the following classes are the most relevant:
+
+\begin{itemize}
+	\item \textbf{Chunk:} Minimum unit of data that will be managed by the different cache levels. Its size has to be strictly controlled because of this (no extra information just the basic information necessary to use it). Only has methods to read/write from/to disk.  
+	\item \textbf{BinPCHandler:} This class represents the binary format used in the format conversion process and the spatial structure construction. Its objective is to emulate a STL vector, but that resides in disk instead of system memory. This is necessary because during the construction, operations like the calculation of the median will use the whole cloud that will not fit in RAM. With this class, the cloud can be used like if it would fit in primary memory. To improve the performance, it will \textit{pre-fetch} and \textit{buffer} data, after a certain number of requests. It will also allow writing and reading. This class has great performance when accessing data sequentially, but it is not as efficient for random access. 
+	\item \textbf{PCConverter:} This will be the class that will provide a single interface to convert any type of point cloud to BPC. The ``strategy'' pattern was used to create this class. It first checks the format of the input point cloud and then delegates the responsibility to the adequate method. It can convert a single file or a set of files stored in a folder.
+\end{itemize}
+
+\subsection[Spatial data structure]{Spatial data structure}
+
+The most important class in \autoref{tree_class} is \textbf{PCTree}. The class will encapsulate two of the main functionalities:
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.6]{figures/tree_class.pdf}
+	\caption[Data strucuture class diagram]{
+		Class diagram of the spatial data structure.
+	}
+	\label{tree_class}
+\end{figure}
+
+\begin{itemize}
+	\item The construction of the chunk DB and the spatial structure itself. This is done as a pre-process, before using the library. This can be achieved using \textit{PCGen}\footnote{A provided command line utility.} or using the visualizer. 
+	\item Managing the multi-resolution tree, obtaining \textit{NodePaths}\footnote{List of nodes to reach a certain area from the tree root.} and performing tree traversals.
+\end{itemize}
+
+The tree nodes, represented by the class \textbf{PCTreeNode}, are all kept in a lineal vector for quick access ($O(1)$). There are also some functions valid for any binary tree related to the traversal of the tree; getting the child nodes of a parent, level of a node, etc. There are also functions to read/write the tree from/to disk. Finally, there are also functions to build priority node lists for the visualizer.
+
+TODO assembler log?   
+
+\subsection[Memory hierarchy]{Memory hierarchy}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.6]{figures/hier_class.pdf}
+	\caption[Memory hierarchy class diagram]{
+		Class diagram of the memory hierarchy.
+	}
+	\label{hier_class}
+\end{figure}
+
+In \autoref{hier_class} the most significant classes are:
+
+\begin{itemize}
+	\item \textbf{L1Cache:} Responsible for loading/storing data in VRAM/RAM and the conversion of chunks in one or multiple VBOs. The class uses a variadic template to let the user choose the type of cache container (\textit{\_cache}). The \textit{update()} method will take care of making the requests to the L2 and the VBO conversion using \textit{load() and store()}.   
+	\item \textbf{L2Cache:} Is the class responsible for loading/storing data in RAM/HDD, it inherits from \textbf{Thread} so that it runs on its own thread. As we will mention in \autoref{subsec:L2}, a Map (\textit{\_cache}) keeps references to every chunk that is loaded in the \textit{\_data} attribute. The request list is kept in the attribute \textit{\_priorityList}. Both structures are protected by \textit{Mutex} and a custom \textit{Semaphore}. The \textit{run()} method contains the main loop. 
+	\item \textbf{CacheStatsManager:} Both of the previous classes contain an instance of this class. It is in charge of the monitorization of the caches, to get statistics of the cache status. Hits, misses, forced misses, load times, etc.  
+\end{itemize}
+
+\subsection[External interface]{External interface}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.6]{figures/external_interf.pdf}
+	\caption[External interface class diagram]{
+		Class diagram of the external interface.
+	}
+	\label{external_interf}
+\end{figure}
+
+In \autoref{external_interf} the most important class is \textbf{PointCloud}, this class represents a complete dataset. This class will allow to load or save a dataset, request information about it, request to load an area or access to the spatial structure so that the user can make queries. 
+
+This class is used extensively by the visualizer to simplify the render process. It also provides several point cloud operations, like an statistical outlier removal filter, a voxel filter, radii estimation, etc.
 
 \section[I/O]{Input and output}
 
@@ -77,7 +146,7 @@ A BPC file is treated like a single chunk that contains the whole cloud, so all 
 	\label{chunk_tree}
 \end{figure}
 
-The only difference between a BPC file and a chunk, is that because the size of a BPC file will be much greater. Therefore it will not be possible to load the complete file at once, and we will rely on an interface class, \textbf{\textcolor{Emerald}{BinPCHandler}}. This interface works in a similar manner to an array in system memory, but accessing permanent memory in an efficient way (this class will be further explained in the TODO desing section). 
+The only big difference between a BPC file and a chunk, is that because the size of a BPC file will be much greater. Therefore it will not be possible to load the complete file at once, and we will rely on an interface class, \textbf{\textcolor{Emerald}{BinPCHandler}}. This interface works in a similar manner to an array in system memory, but accessing permanent memory in an efficient way (this class will be further explained in the \autoref{subsec:conv}). 
 
 \subsection[Output]{Output}
 
@@ -185,6 +254,7 @@ This process is completely transparent for the user, that will only have to use 
 \end{lstlisting}
 
 \subsection[L2]{L2 cache}
+\label{subsec:L2}
 
 The second level cache L2, will be in charge of transferring data (chunks) from disk to system memory (RAM). The replacement policy used in this cache is LRU \cite{taibo} as this is the most adequate policy for these types of systems. 
 
