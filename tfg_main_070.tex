@@ -101,7 +101,14 @@ Since one of the problems that we found in the image-aligned squares was the lac
 
 This approach yields much better results in comparison to the previous one, this is specially apparent in object contours. But it does not come without its share of issues. Since the depth offset is just an approximation due to the fact that in the \autoref{eq:depth} a parallel projection is assumed. Thus neglecting the angle between the viewing ray and the splat normal. This creates artifacts when viewing the splat from extreme angles (see \autoref{ext_angles}).
 
-
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.35]{figures/comp_perps2.png}
+	\caption[Comparison between affinely projected and perspectively accurate rasterization]{
+		Local affine approximations can cause holes for extreme viewing angles (\textbf{left}). This problem is taken care of by using perspectively correct rasterization (\textbf{right}).
+	}
+	\label{ext_angles}
+\end{figure}
 
 \subsection[Perspectively correct rasterization]{Perspectively correct rasterization}
 
@@ -143,6 +150,26 @@ Once the distance $t$ is obtained, the point $\mathbf{q}$ is easily obtained wit
 
 \begin{equation} \mathbf{q} = t\mathbf{q_{n}} \end{equation}  
 
-After the point $\mathbf{q}$ is known, we can apply \autoref{eq:dist} to test whether the fragment falls inside the splat or not. Of course, we will not be done until we adjust the new fragment depth value using $q_{z}$ as $z'$ in \autoref{eq:zbuffer}. Since the 3D point $\mathbf{q}$ is the \textit{exact} preimage of the projective transform, this means that this method is perspectively correct for each pixel.    
+After the point $\mathbf{q}$ is known, we can apply \autoref{eq:dist} to test whether the fragment falls inside the splat or not. Of course, we will not be done until we adjust the new fragment depth value using $q_{z}$ as $z'$ in \autoref{eq:zbuffer}. Since the 3D point $\mathbf{q}$ is the \textit{exact} preimage of the projective transform, this means that this method is perspectively correct for each pixel. 
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.35]{figures/comp_squares.png}
+	\caption[Comparison between perspectively accurate rasterization and image-aligned squares]{
+		Perspectively correct rasterization represents the splat with a lot more fidelity than the initial technique, specially in the object contour (\textbf{left}).  Image-aligned squares centered in the splat position (\textbf{right}).
+	}
+	\label{comp_squares}
+\end{figure} 
 
 \section[Antialiasing]{Antialiasing}
+
+The chosen method to remove anti-aliasing artifacts in the visualizer was \textbf{MSAA}. The term usually refers to a special case of super-sampling. If the reader wants more information about super-sampling, feel free to check \cite{BDE}, SSAA was the anti-aliasing method used in that point-based rendering engine. That type of anti-aliasing works well in offline rendering, but for real-time rendering it is not a good option because of its computational cost.
+
+One way to reduce aliasing artifacts is through \textit{oversampling}. Oversampling is the process of sampling a signal at a rate that is higher than the desired output. In the case of images this results in a reduction in the aliasing artifacts. When this is applied to graphics or 2D images we call it SSAA. We can apply lots of different super-sampling patterns and each one will yield a different result(see TODO SSAA patters).  
+
+In order to keep most of the benefits of SSAA without the performance penalty, we can see that aliasing only occurs in the borders of geometric primitives. MSAA works in a similar manner to SSAA, the coverage and occlusion test are performed at a higher sampling rate (from 2x to 16x). For coverage, we have N samples within a pixel, where N is the multi-sample rate. A typical sample pattern can be observed in \autoref{MSAA}.
+
+With the sample points the primitive is tested for coverage building a \textit{coverage mask}. For occlusion testing, the primitive depth is interpolated at each sub-sample. Where MSAA starts differing from SSAA is in the pixel shader. It is not executed for each sub-sample, but once for each pixel with a coverage mask that is not zero. This means that the shader cost is not as big as with SSAA. When a pixel shader outputs a value, the value will be written only if both the coverage and depth tests are passed (see figure partial point).       
+
+Once we have the oversampled signal, we have to resample it to the target resolution before it can be displayed. In MSAA this process is called \textit{resolving} the render target.    
+
