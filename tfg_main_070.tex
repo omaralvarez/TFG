@@ -19,11 +19,10 @@ In these cases, is where points seem to be the more suited rendering primitive. 
 \begin{itemize}
 \item \textbf{Interleaved vertex arrays:} To minimize the number of calls to the OpenGL API, the point data (positions \textbf{p}, colors \textbf{c}, radii \textbf{r}, normals \textbf{n}, etc.) has to be stored in one large array. Thanks to this, we can render the points with just one call to \textit{glDrawArrays()}. For better memory coherence, the data should also be stored in an interleaved manner (i.e. $[\textbf{p}_{1},\textbf{p}_{2},\ldots,\textbf{c}_{1},\textbf{c}_{2},\ldots]$).
 \item \textbf{Vertex Buffer Objects:} In each frame, all the point data has to be transferred to the GPU. This would quickly become a bottleneck in massive datasets. Since sometimes this data will be static for several frames, it will be stored in high performance video memory for efficient GPU access. VBOs are the standard way of achieving our objective since OpenGL version 1.5 (2003).
+\item \textbf{Optimum VBO size:} The VBO size will be kept in the optimum range recommended by NVIDIA (1-4 MB). If chunks are larger than that, they will be split in several VBOs. 
 \item \textbf{Data formats:} In order to reduce the GPU memory consumed, and decrease transfer costs, the point data will be stored in a compact format. Position and normals will be stored using single-precision floating-point numbers, colors will be stored using just 4 bytes (one per RGBA channel). 
 \item \textbf{Shading language:} Low-level shading languages offer a small performance advantage, but since nowadays it is marginal, GLSL will be used for shader programming. High-level languages like GLSL are more convenient to use and way less problematic when adding features or reviewing the code.
 \end{itemize} 
-
-TODO optimum VBO size
 
 All of these optimization techniques are valid for all the point rendering approaches that will be explained next. 
 
@@ -176,8 +175,6 @@ The chosen method to remove anti-aliasing artifacts in the visualizer was \textb
 
 One way to reduce aliasing artifacts is through \textit{oversampling}. Oversampling is the process of sampling a signal at a rate that is higher than the desired output. In the case of images this results in a reduction in the aliasing artifacts. When this is applied to graphics or 2D images we call it SSAA. We can apply lots of different super-sampling patterns and each one will yield a different result(see \autoref{ssaa_patterns}).    
 
-In order to keep most of the benefits of SSAA without the performance penalty, we can see that aliasing only occurs in the borders of geometric primitives. MSAA works in a similar manner to SSAA, the coverage and occlusion test are performed at a higher sampling rate (from x2 to x16). For coverage, we have N samples within a pixel, where N is the multi-sample rate. A typical MSAA sample pattern can be observed in \autoref{msaa_typ}.
-
 \begin{figure}[h]
 	\centering
 	\includegraphics[scale=0.28]{figures/typ_samp.pdf}
@@ -185,7 +182,9 @@ In order to keep most of the benefits of SSAA without the performance penalty, w
 		Subsample placement for a MSAA x4 rotated grid pattern.
 	}
 	\label{msaa_typ}
-\end{figure}  
+\end{figure}
+
+In order to keep most of the benefits of SSAA without the performance penalty. Seeing that aliasing only occurs in the borders of geometric primitives, we will exploit this fact in our advantage. MSAA works in a similar manner to SSAA, the coverage and occlusion tests are performed at a higher sampling rate (from x2 to x16). For coverage, we have N samples within a pixel, where N is the multi-sample rate. A typical MSAA sample pattern can be observed in \autoref{msaa_typ}.  
 
 With the sample points the primitive is tested for coverage building a \textit{coverage mask}. For occlusion testing, the primitive depth is interpolated at each sub-sample. Where MSAA starts differing from SSAA is in the pixel shader. It is not executed for each sub-sample, but once for each pixel with a coverage mask that is not zero. This means that the shader cost is not as big as with SSAA. When a pixel shader outputs a value, the value will be written only if both the coverage and depth tests are passed (see \autoref{msaa_cover}).  
 
@@ -200,6 +199,11 @@ With the sample points the primitive is tested for coverage building a \textit{c
 
 Once we have the oversampled signal, we have to resample it to the target resolution before it can be displayed. In MSAA this process is called \textit{resolving} the render target. In the early days of MSAA, the resolve process was carried out in the GPU's hardware, using a one pixel wide box filter. Which in essence is the same as averaging all the subsamples of a given pixel. 
 
+As programmable shaders arrived, we now have the possibility to perform the MSAA resolve in a custom shader. In this project this step was not deemed a priority and we have relied on the OpenGL API to perform it. But, these are not the only advantages, bandwidth usage is also improved when using MSAA versus SSAA. Since the pixel shader is only executed once per pixel, as a result the same value is often written to all the subsamples of the render target. GPUs can take advantage of this factor sending not only the pixel value, but the number of samples that have to be written, which in term is a form of loss-less compression. 
+
+
+Summing up, the use of MSAA has given us an increase in image quality without a big impact in performance. This increase in rendering quality is specially noticeable in dynamic cases, but can also be observed in static images (see \autoref{msaa_comp}).  
+
 \begin{figure}[h]
 	\centering
 	\includegraphics[scale=0.5]{figures/msaa_comp.png}
@@ -208,6 +212,3 @@ Once we have the oversampled signal, we have to resample it to the target resolu
 	}
 	\label{msaa_comp}
 \end{figure} 
-
-As programmable shaders arrived, we now have the possibility to perform the MSAA resolve in a custom shader. In this project this step was not deemed a priority and we have relied on the OpenGL API to perform this step. Summing up, the use of MSAA has given us an increase in image quality without a big impact in performance. This increase in rendering quality is specially noticeable in dynamic cases, but can also be observed in static images (see \autoref{msaa_comp}).  
-
