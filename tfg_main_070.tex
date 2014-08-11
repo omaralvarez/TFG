@@ -67,7 +67,7 @@ Where $n$, $t$ and $b$ are the near/top/bottom parameters of the camera's view f
 \begin{figure}[h]
 	\centering
 	\includegraphics[scale=0.5]{figures/squares.png}
-	\caption[Image aligned square defects]{
+	\caption[Image aligned squares defects]{
 		Render image showing the defects that image-aligned squares present in object contours.
 	}
 	\label{squares}
@@ -163,13 +163,51 @@ After the point $\mathbf{q}$ is known, we can apply \autoref{eq:dist} to test wh
 
 \section[Antialiasing]{Antialiasing}
 
-The chosen method to remove anti-aliasing artifacts in the visualizer was \textbf{MSAA}. The term usually refers to a special case of super-sampling. If the reader wants more information about super-sampling, feel free to check \cite{BDE}, SSAA was the anti-aliasing method used in that point-based rendering engine. That type of anti-aliasing works well in offline rendering, but for real-time rendering it is not a good option because of its computational cost.
+The chosen method to remove anti-aliasing artifacts in the visualizer was \textbf{MSAA} \cite{realtime}. The term usually refers to a special case of super-sampling. If the reader wants more information about super-sampling, feel free to check \cite{BDE}, SSAA was the anti-aliasing method used in that point-based rendering engine. That type of anti-aliasing works well in offline rendering, but for real-time rendering it is not a good option because of its computational cost.
 
-One way to reduce aliasing artifacts is through \textit{oversampling}. Oversampling is the process of sampling a signal at a rate that is higher than the desired output. In the case of images this results in a reduction in the aliasing artifacts. When this is applied to graphics or 2D images we call it SSAA. We can apply lots of different super-sampling patterns and each one will yield a different result(see TODO SSAA patters).  
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.35]{figures/supersampling_patterns.png}
+	\caption[Typical super-sampling patterns]{
+		A series of typical super-sampling patterns applied to a triangle. Aliasing is reduced even when the resolution is not increased. Source: \cite{realtime}.
+	}
+	\label{ssaa_patterns}
+\end{figure}
 
-In order to keep most of the benefits of SSAA without the performance penalty, we can see that aliasing only occurs in the borders of geometric primitives. MSAA works in a similar manner to SSAA, the coverage and occlusion test are performed at a higher sampling rate (from 2x to 16x). For coverage, we have N samples within a pixel, where N is the multi-sample rate. A typical sample pattern can be observed in \autoref{MSAA}.
+One way to reduce aliasing artifacts is through \textit{oversampling}. Oversampling is the process of sampling a signal at a rate that is higher than the desired output. In the case of images this results in a reduction in the aliasing artifacts. When this is applied to graphics or 2D images we call it SSAA. We can apply lots of different super-sampling patterns and each one will yield a different result(see \autoref{ssaa_patterns}).    
 
-With the sample points the primitive is tested for coverage building a \textit{coverage mask}. For occlusion testing, the primitive depth is interpolated at each sub-sample. Where MSAA starts differing from SSAA is in the pixel shader. It is not executed for each sub-sample, but once for each pixel with a coverage mask that is not zero. This means that the shader cost is not as big as with SSAA. When a pixel shader outputs a value, the value will be written only if both the coverage and depth tests are passed (see figure partial point).       
+In order to keep most of the benefits of SSAA without the performance penalty, we can see that aliasing only occurs in the borders of geometric primitives. MSAA works in a similar manner to SSAA, the coverage and occlusion test are performed at a higher sampling rate (from x2 to x16). For coverage, we have N samples within a pixel, where N is the multi-sample rate. A typical MSAA sample pattern can be observed in \autoref{msaa_typ}.
 
-Once we have the oversampled signal, we have to resample it to the target resolution before it can be displayed. In MSAA this process is called \textit{resolving} the render target.    
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.28]{figures/typ_samp.pdf}
+	\caption[MSAA subsample placement for a rotated grid pattern]{
+		Subsample placement for a MSAA x4 rotated grid pattern.
+	}
+	\label{msaa_typ}
+\end{figure}  
+
+With the sample points the primitive is tested for coverage building a \textit{coverage mask}. For occlusion testing, the primitive depth is interpolated at each sub-sample. Where MSAA starts differing from SSAA is in the pixel shader. It is not executed for each sub-sample, but once for each pixel with a coverage mask that is not zero. This means that the shader cost is not as big as with SSAA. When a pixel shader outputs a value, the value will be written only if both the coverage and depth tests are passed (see \autoref{msaa_cover}).  
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=1]{figures/msaa_cover.pdf}
+	\caption[MSAA and non-MSAA results for a partially covered point]{
+		Non-MSAA rendering does not support partially covered primitives and in this case would not color the pixel (\textbf{left}).  MSAA rendering on the other hand would detect that some subsamples are covered and would average an output color from all the subsamples (\textbf{right}).
+	}
+	\label{msaa_cover}
+\end{figure}      
+
+Once we have the oversampled signal, we have to resample it to the target resolution before it can be displayed. In MSAA this process is called \textit{resolving} the render target. In the early days of MSAA, the resolve process was carried out in the GPU's hardware, using a one pixel wide box filter. Which in essence is the same as averaging all the subsamples of a given pixel. 
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.5]{figures/msaa_comp.png}
+	\caption[MSAA and non-MSAA result comparison]{
+	MSAA rendering obtains smoother surfaces without holes and less edge aliasing (\textbf{left}). Non-MSAA rendering results in holes and non-smooth edge gradients (\textbf{right}).
+	}
+	\label{msaa_comp}
+\end{figure} 
+
+As programmable shaders arrived, we now have the possibility to perform the MSAA resolve in a custom shader. In this project this step was not deemed a priority and we have relied on the OpenGL API to perform this step. Summing up, the use of MSAA has given us an increase in image quality without a big impact in performance. This increase in rendering quality is specially noticeable in dynamic cases, but can also be observed in static images (see \autoref{msaa_comp}).  
 
