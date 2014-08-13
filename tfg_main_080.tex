@@ -35,16 +35,61 @@ This procedure is repeated a certain number of times, each time producing either
 
 The algorithm will stop when it reaches $N$ iterations or when the model reaches a desired error measure. $N$ can be calculated to ensure that the probability $p$ (usually 0.99) of one of the subsets of random samples will not contain an outlier. Being $u$ the probability that any selected point is an inlier and $v = 1 - u$ the probability of observing an outlier. $N$ iterations of the minimum number of points $m$ are required:
 
-\begin{equation}\label{eq:depth} 1 - p = (1 - u^m)^N \end{equation}
+\begin{equation} 1 - p = (1 - u^m)^N \end{equation}
 
 After solving for $N$ we will obtain the necessary number of iterations:
 
-\begin{equation}\label{eq:depth} N = \frac{log(1 - p)}{log(1 - (1 - v) ^ m)} \end{equation}
+\begin{equation} N = \frac{log(1 - p)}{log(1 - (1 - v) ^ m)} \end{equation}
 
 Since our objective is estimating primitives in real-time, we will let the user choose this parameter so that computational time is not too high.
 
 An advantage of RANSAC is the robust estimation of the model parameters (it can estimate the parameters even when a significant number of outliers is present). But, a disadvantage of RANSAC is that there is no upper bound on the time that it would take to compute the correct model parameters. Another disadvantage is that it can only estimate one model at a time, if two or more instances of the model exist, RANSAC will fail to find either of them.
 
+\section[Alternative algorithms]{Alternative algorithms}
+
+Since 1981 RANSAC has become one of the most widely used tools in computer vision. Since then, there have been several variations of the algorithm meant to improve its robustness, speed and accuracy. Some of the improved algorithms will be briefly described in this section.
+
+\subsection[MSAC and MLESAC]{MSAC and MLESAC}
+
+In the original algorithm, if the threshold $\epsilon$ is too high, the robust estimate can be very poor. This happens because RANSAC finds the minimum of a cost function:
+
+\begin{equation} C = \sum_{i} p(e_{i}^2) \end{equation}
+
+Where $p(e^2)$ is:
+
+\begin{equation} 
+p(e^2) = \left\{\begin{matrix}
+0 & e^2 < \epsilon^2\\ 
+constant & e^2 \geq  \epsilon^2
+\end{matrix}\right. 
+\end{equation}
+
+As we can see in the equations, inliers will score nothing and each outlier will score a constant penalty. As $\epsilon^2$ is higher, more solutions with the same value $C$ will appear, leading to worse estimations. In \cite{robustparam} it is shown that this can be avoided changing $C$ for:
+
+\begin{equation} C_{2} = \sum_{i} p_{2}(e_{i}^2) \end{equation}
+
+Where $p_{2}(e^2)$ is:
+
+\begin{equation} 
+p_{2}(e^2) = \left\{\begin{matrix}
+e^2 & e^2 < \epsilon^2\\ 
+\epsilon^2 & e^2 \geq  \epsilon^2
+\end{matrix}\right. 
+\end{equation}
+
+This is known as a re-descending M-estimator. Outliers are still given a constant penalty, but now inliers are scored depending on how well they fit the data. The implementation of this method is called MSAC\footnote{M-Estimator Sample Consensus}.
+
+The definition of a maximum likelihood error, will allow to further improve the results of this new technique. This improved technique is called MLESAC\footnote{Maximum Likelihood Sample Consensus} \cite{MLESAC}. The improved algorithm steps are:
+
+\begin{enumerate}
+	\item Get the minimum number of samples that will satisfy the model criteria.
+	\item Search for inliers.
+	\item Calculate distances to the model.
+	\item Use Expectation-Maximization to find out the right value for the penalty.
+	\item If the fraction of inliers over the total number of points is sufficiently good, then the model is re-estimated (since it was only estimated using the initial inliers).
+	\item Finally, the model is evaluated by estimating the error of the inliers relative to the model.
+\end{enumerate}
  
+It can be seen that MSAC and MLESAC outperform the other two estimators, providing a $5 - 10\%$ improvement according to \cite{MLESAC}.
 
-
+\subsection[PROSAC]{PROSAC}
