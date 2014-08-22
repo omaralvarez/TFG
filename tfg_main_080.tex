@@ -231,7 +231,7 @@ When we have every parameter and a point $\mathbf{x_{0}}$, we can calculate the 
 
 Due to the fact that parametric cylinders and planes are infinite, in order to export them to CAD software we need to bound them. Therefore, we will use the bounding box of the complete dataset to establish these boundaries.
 
-\subsection[Plane bounding]{Plane bounding} 
+\subsection[Plane bounding]{Plane bounding \label{ss:plane_bound}} 
 
 To bound a plane, we will have to calculate the intersection between the \textit{AABB}\footnote{Axis Aligned Bounding Box} of the scene and a plane. This intersection will yield a three to six vertex polyline\autoref{plane_bound}. 
 
@@ -265,10 +265,32 @@ Once all the intersection points have been obtained, they are tested to check if
 
 \subsection[Cylinder bounding]{Cylinder bounding} 
 
+In order to obtain the two points corresponding to the centers of the cylinder bases, we will have to perform a AABB-cylinder intersection test (\autoref{cyl_bound}). To achieve this, we will carry out six ray-plane intersection tests.  
 
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=1]{figures/cyl_bound.pdf}
+	\caption[AABB-cylinder intersection]{
+		Visual representation of a AABB-cylinder intersection.
+	}
+	\label{cyl_bound}
+\end{figure}
 
+In this instance, the ray will be the cylinder axis that will be tested against each of the faces of the AABB. This intersection test will be performed in the same manner as in \autoref{ss:plane_bound}, but the ray direction and position instead of being those of the AABB, will be those of the cylinder axis (see \autoref{cyl_ray_plane}). The planes against which the ray has to be tested will be the faces of the AABB.
 
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=1]{figures/cyl_ray_plane.pdf}
+	\caption[Cylinder axis-plane intersection]{
+		Visual representation of a ray-plane intersection with the cylinder axis as ray.
+	}
+	\label{cyl_ray_plane}
+\end{figure}
 
+Once we have all the intersection points, we will have more than two intersection points. That is why one extra step is needed to bound the cylinder, the sorting of the points according to the distance to the AABB center $\mathbf{c}$:
 
+\begin{equation} D = \lVert \mathbf{x} - \mathbf{c} \rVert \end{equation}
+
+Finally, the two cylinder bases will be the two closest points to the AABB center. This is the last step necessary to get the cylinder ready for exportation.
 
   

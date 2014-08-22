@@ -78,3 +78,62 @@ Next, the most important class will be briefly explained. \textbf{CloudSegmentat
 To achieve these objectives, this class uses the \textbf{RSampleConsensus} class for primitive fitting and \textbf{DL\_Dxf} for \textit{DXF}\footnote{\textit{Drawing Exchange Format} is a CAD data file format developed by Autodesk for enabling data interoperability between AutoCAD and other programs.} exporting. Since there is not a good way to export cylinders and spheres in the DXF format, the segmentator will also support exporting these primitives as \textit{SCR}\footnote{\textit{Script Files} are simply a list of AutoCAD commands.} files.
 
 Since some of the primitives need normals for the segmentation process, \textbf{CloudSegmentator} also includes the capability to estimate them. The pattern \textit{Strategy} was used for the design of this class so that adding primitives in the future will be easy. 
+
+\section[Functionality]{Functionality}
+
+The need for a robust tool to complement PCM was quickly noticed when using PCM's basic visualizer. This tool was enough for testing but left a lot to be desired, even when multiple clouds were not rendered onscreen and no advanced operations were performed on them. 
+
+Moreover, the rendering code was written with the help of an open source scene graph called OSG\footnote{Open Scene Graph}. This was also an inconvenient because of the massive nature of the clouds that this software is designed to deal with. Heavy optimization would have to be performed and complete access to OpenGL rendering code was needed.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.6]{figures/tovi_screen.png}
+	\caption[Early ToView screenshot]{
+		Screenshot showing an early version of ToView.
+	}
+	\label{early_toview}
+\end{figure}
+
+Furthermore, almost all of PCM's functionality was only accessible through multiple command line tools. When trying to integrate this software in engineering workflows, this was a big limitation.
+
+If PCM was to be adopted by non-technical users, a GUI and more interactivity were essential. This is where ToView came to the rescue (see \autoref{early_toview}), with multiple cloud support, a GUI, advanced rendering, distance measuring capabilities, object detection, etc. All the functionality that ToView brings to the table will be exposed in the following subsections.
+
+\subsection[Render modes]{Render modes}
+
+In light of the need for high quality point based rendering, but also trying to keep versatility, three rendering modes are supported in ToView:
+
+\begin{itemize}
+	\item \textbf{Constant:} Most basic type of point-based rendering, it does not require point normals or radii.
+	\item \textbf{Dynamic:} Almost the same as the previous mode, but requires point radii to reduce clipping and increase rendering quality and performance.
+	\item \textbf{Perspective accurate:} Most advanced type of rendering, requires point normals and radii. This rendering mode yields high quality renders but at a greater computational cost.
+\end{itemize}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.9]{figures/render_modes.png}
+	\caption[Render modes]{
+		Screenshot showing all of the available render modes in ToView's interface.
+	}
+	\label{render_modes}
+\end{figure}
+
+As we can see in \autoref{render_modes}, more parameters like anti-aliasing or full-screen rendering are also exposed through the GUI. Anti-aliasing will play a huge role in high quality rendering as it increases image quality dramatically.
+
+All of these rendering modes and a complementary technique that was not exposed to the user in ToView, but was also implemented for testing, will be explained in depth in \autoref{chapter_7}.
+
+\subsection[Camera types]{Camera types}
+
+\subsection[Preprocessing]{Preprocessing}
+
+\subsection[Cloud interaction]{Cloud interaction}
+
+\subsection[Picking]{Picking}
+
+\subsection[Distance measurements]{Distance measurements}
+
+\subsection[Primitive segmentation]{Primitive segmentation}
+
+\subsection[Primitive exportation]{Primitive exportation}
+
+\section[Results]{Results}
+
