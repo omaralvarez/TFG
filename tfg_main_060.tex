@@ -123,11 +123,109 @@ All of these rendering modes and a complementary technique that was not exposed 
 
 \subsection[Camera types]{Camera types}
 
+Since camera only one camera type was present in the old visualizer, two types of camera paradigms were implemented:
+
+\begin{itemize}
+	\item \textbf{First-person camera:} Type of camera that imitates how movement is implemented in video games. This camera is ideal for virtual tours of the scenes, or working with really big scenes with multiple objects.
+	\item \textbf{Orbital:} This camera model emulates cameras in modeling software (Blender, AutoCAD, etc.). This camera type is optimal for working with single objects and an orthographic projection.
+\end{itemize}
+
+Furthermore, because of the engineering nature of our software, a perspective camera may not be the optimal choice. This is the reason why two types of projection are available for the user:
+
+\begin{itemize}
+	\item \textbf{Perspective:} Projection model that reflects how the human eye perceives scenes, objects in the distance appear smaller than objects close by. This projection type is useful when moving through a city or interior datasets. 
+	\item \textbf{Ortographic:} This projection type ignores the aforementioned effect so that to-scale modeling can occur. This projection model is useful when working with single objects or when we need to see parallel lines as parallel in the final image.
+\end{itemize}
+
+All of these camera types are controlled using the keyboard and mouse, trying to make it as easy as possible for the end user. The math and implementation details behind these cameras are explained in \autoref{camera_model}. The options are exposed to the user through a convenient menu in the interface and do not require restarting the application to be applied (see \autoref{camera_types}).
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.9]{figures/camera_types.png}
+	\caption[Camera options]{
+		Screenshot showing all of the available camera options in ToView's interface.
+	}
+	\label{camera_types}
+\end{figure}
+
 \subsection[Preprocessing]{Preprocessing}
+
+As mentioned before, scanners sometimes output clouds that may not be optimal for the task at hand. As a consequence, some preprocessing can be needed. ToView offers its users several operations:
+
+\begin{itemize}
+	\item \textbf{Voxel grid filter:} Downsampling filter, useful to thin dense point clouds or keep the cloud density uniform. 
+	\item \textbf{Statistical outlier removal:} Noise removal filter, it can be used to remove outliers or noise present in the clouds.
+	\item \textbf{Radii estimation:} Necessary process if the end user wants to use the two advanced rendering modes. It estimates the value of the point radii.
+	\item \textbf{K-d tree building:} Essential process for the visualization of the point clouds. Without a spatial acceleration structure, the clouds would be too big to render or perform any operation.
+\end{itemize}
+
+The preprocessing filters are further explained in \autoref{chapter_9}. All of these point cloud operations are exposed to the user through the tools menu in the interface(see \autoref{tools_menu}).
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.7]{figures/tools.png}
+	\caption[Tools menu]{
+		Screenshot showing all of the available point cloud tools in ToView's interface.
+	}
+	\label{tools_menu}
+\end{figure}
 
 \subsection[Cloud interaction]{Cloud interaction}
 
-\subsection[Picking]{Picking}
+One of the main drawbacks of having a simple visualizer without a GUI was the inability to integrate multiple point clouds, and perform modifications on the clouds (see \autoref{mult_clouds}). 
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.495]{figures/mult_clouds_int.png}
+	\caption[Multiple point cloud integration]{
+		Two clouds (a park and a statue) integrated using ToView.
+	}
+	\label{mult_clouds}
+\end{figure}
+
+ToView offers multiple possibilities on this front:
+
+\begin{itemize}
+	\item \textbf{Point cloud transformation:} Each cloud can be transformed to the user's liking. 
+	\begin{itemize}
+		\item \textbf{Translation:} The cloud can be moved through space.
+		\item \textbf{Rotation:} The cloud can be rotated.
+		\item \textbf{Scaling:} The cloud can be transformed to be bigger or smaller.
+	\end{itemize}
+	\item \textbf{Multiple point cloud integration:} The user can transform multiple clouds at the same time. This allows the integration of multiple point clouds, correcting positioning errors, wrong coordinate systems, etc.
+	\item \textbf{Cloud selector:} Select a cloud to transform, eliminate or perform any operation in an easy way through the interface.
+\end{itemize}
+
+The aforementioned features are exposed through the interface in a panel in the interface (see \autoref{cloud_modifiers}). All of these features work in real-time, allowing the user to see the changes made reflected instantly. Clouds can also be added or removed in real-time according to the user's needs.   
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.7]{figures/cloud_modif.png}
+	\caption[Cloud interaction]{
+		Screenshot showing the cloud interaction menu in ToView's interface.
+	}
+	\label{cloud_modifiers}
+\end{figure}
+
+\subsection[Point picking]{Point picking}
+
+In order to be able to measure distances or segment primitives interactively in the clouds, the visualizer has to be capable of finding the correct point that the user desires in the clouds. This action is called point picking, and is performed in real-time by the visualizer. 
+
+To achieve this, the first step is getting the position the user has clicked in the window. This is done using QT's API and returns two values, the $x$ and $y$ coordinates.
+
+Secondly, the coordinates are transformed so that we have the coordinates of a ray corresponding to that pixel in NDC. The ray origin can be obtained with the following equation:
+
+\begin{equation} \mathbf{r_{start}} = ((x/w - 0.5) * 2, (y/h - 0.5) * 2, 0) \end{equation} 
+
+Being $w$ the width of the window and $h$ the height. The ray end can be obtained with the equation that follows:
+
+\begin{equation} \mathbf{r_{end}} = ((x/w - 0.5) * 2, (y/h - 0.5) * 2, 1) \end{equation} 
+
+Once we have the ray in NDC space, we need to transform it to world space. The operation needed to get the ray in world space is just a matrix multiplication:
+
+\begin{equation} \mathbf{r_{world}} = \textbf{\textit{MVP}}^{-1} \cdot \mathbf{r_{ndc}} \end{equation}
+
+Finally, after the ray in world coordinates is obtained, it is just a matter of obtaining the points that intersect with the ray and return the closest to the viewpoint.
 
 \subsection[Distance measurements]{Distance measurements}
 

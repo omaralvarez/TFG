@@ -27,7 +27,7 @@ As we have mentioned before, points lack surface area by definition. That is why
 	\centering
 	\includegraphics[scale=0.4]{figures/sphere_radius.png}
 	\caption[Estimated radii on a sphere]{
-		In the sphere we can see that when points are further apart (left half of the sphere) the resulting radii are bigger than when they are closer together (right half of the sphere).
+		In the sphere we can see that when points are further apart (\textbf{left}) the resulting radii are bigger than when they are closer together (\textbf{right}).
 	}
 	\label{sphere_radius}
 \end{figure}   
@@ -46,7 +46,14 @@ With these two equations we will be able to obtain a point radius, that as menti
 
 As was mentioned in the introduction of this chapter, laser scanners typically generate scans with different point densities or noise. Moreover, measurement errors will lead to sparse outliers that will corrupt the resulting scan even more. These outliers will complicate further calculations, like radii or normal estimations, leading to visual artifacts or point cloud registration failures (see \autoref{outlier_removal}).
 
-//TODO outlier removal
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.37]{figures/ofi_no_clean.png}
+	\caption[Statistical outlier filter comparison]{
+		Original dataset without filtering applied, ellipses highlight outliers (\textbf{left}). Resulting dataset without outliers after filtering is applied (\textbf{right}). 
+	}
+	\label{outlier_removal}
+\end{figure}
 
 Some of this problematic points can be removed by performing a statistical analysis of the point neighborhood, and eliminating those that meet certain criteria. The sparse outlier removal algorithm implemented in this project, is based on the distribution of point-neighbor distances in the dataset. 
 
