@@ -225,11 +225,56 @@ Once we have the ray in NDC space, we need to transform it to world space. The o
 
 \begin{equation} \mathbf{r_{world}} = \textbf{\textit{MVP}}^{-1} \cdot \mathbf{r_{ndc}} \end{equation}
 
-Finally, after the ray in world coordinates is obtained, it is just a matter of obtaining the points that intersect with the ray and return the closest to the viewpoint.
+Finally, after the ray in world coordinates is obtained, it is just a matter of obtaining the points that intersect with the ray and then return the closest to the viewpoint.
+
+To use this functionality, the user will just have to right-click the mouse, and the visualizer will take care of all of the steps internally (see \autoref{picked_point}).
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.6]{figures/picked_point.png}
+	\caption[Point picking example]{
+		Screenshot showing the picked point in a cloud in red.
+	}
+	\label{picked_point}
+\end{figure}
 
 \subsection[Distance measurements]{Distance measurements}
 
+A typical operation in a point cloud for engineers is measuring distances. The surveyor nowadays, does not have to go back to the field each time a new measurement is needed. With point clouds, the laser scanner will register data of every surrounding surface and all of the information will be stored in the point cloud for later use. 
+
+Therefore, once we have the ability to select two or more points, we will have the possibility of obtaining measurements. The accuracy of the measurements, will depend on the precision of the scanner (the scanner that we are using has millimeter precision). Having the points $\mathbf{p_{1}}$ and $\mathbf{p_{2}}$, the distance is obtained with the following equation:
+
+ \begin{equation} D = \lVert \mathbf{p_{1}} - \mathbf{p_{2}} \rVert \end{equation}
+ 
+The user just needs to click the distance measurement option in the tools menu (see \autoref{tools_menu}) and then select two points in the cloud. The measurement will be performed in real-time and the result displayed in the interface (see \autoref{dist_measurement}).
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.7]{figures/dist_measurement.png}
+	\caption[Distance measurement example]{
+		Screenshot showing a distance measured in a point cloud.
+	}
+	\label{dist_measurement}
+\end{figure}
+
 \subsection[Primitive segmentation]{Primitive segmentation}
+
+Another feature widely requested by civil engineers, is the estimation of parametric primitives from the point cloud. To better explain the usefulness of this feature, the reader may think of a pipe. If we wanted to select each point to extract the cloud representing the pipe or create an CAD representation of the object, how would we go about it? This is not a trivial problem, and even less when dealing with massive point clouds.
+
+To solve this problem, in ToView we have designed a semi-automatic way of segmenting objects. The steps involved in this process are:
+
+\begin{enumerate}
+	\item The user selects a point in the cloud. 
+	\item The visualizer samples the surrounding area.
+	\item Estimates the necessary features.
+	\item Uses RANSAC to estimate the chosen primitive.
+	\item Displays the result to the user.
+\end{enumerate}
+
+ToView is capable of estimating planes, cylinders and spheres. The process also allows the user to further refine the primitives selecting more points after the initial estimation.
+
+This estimation is also performed in real-time and is easily accessible from the GUI. When the user clicks on the option to segment primitive (see \autoref{tools_menu}), a new dialog will appear that will let the user fine tune the segmentation options (see \autoref{segm_opt}). The process is really intuitive for the user, as it is only needed to select a point of the object that needs to be segmented.
+
 
 \subsection[Primitive exportation]{Primitive exportation}
 
