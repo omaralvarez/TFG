@@ -271,12 +271,54 @@ To solve this problem, in ToView we have designed a semi-automatic way of segmen
 	\item Displays the result to the user.
 \end{enumerate}
 
-ToView is capable of estimating planes, cylinders and spheres. The process also allows the user to further refine the primitives selecting more points after the initial estimation.
+Due to the limited time available to implement an ambitious project as this one, PCL was integrated with ToView to make use of the implemented RANSAC classes available in PCL. Thanks to this we have been able to test advanced RANSAC implementations and employ more time investigating and making the visualizer more robust. 
 
-This estimation is also performed in real-time and is easily accessible from the GUI. When the user clicks on the option to segment primitive (see \autoref{tools_menu}), a new dialog will appear that will let the user fine tune the segmentation options (see \autoref{segm_opt}). The process is really intuitive for the user, as it is only needed to select a point of the object that needs to be segmented.
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.7]{figures/segmentation_dialog.png}
+	\caption[Segmentation dialog]{
+		Screenshot showing the segmentation options available.
+	}
+	\label{seg_dia}
+\end{figure}
 
+PCL is a widely used point cloud library, with lots of features not only limited to RANSAC implementations. In the future it will be interesting to integrate PCL further, for normal estimation, advanced segmentation, etc.
+
+ToView is capable of estimating planes, cylinders and spheres. The process also allows the user to further refine the primitives selecting more points after the initial estimation (see \autoref{estimated_cyl}).
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.7]{figures/seg_cyl.png}
+	\caption[Segmented cylinder]{
+		Screenshot showing a segmented cylinder.
+	}
+	\label{estimated_cyl}
+\end{figure}
+
+This estimation is also performed in real-time and is easily accessible from the GUI. When the user clicks on the option to segment primitive (see \autoref{tools_menu}), a new dialog will appear that will let the user fine tune the segmentation options (see \autoref{seg_dia}). The process is really intuitive for the user, as it is only needed to select a point of the object that needs to be segmented.
+
+All of the theory behind primitive segmentation will be explained in depth in \autoref{chapter_8}.
 
 \subsection[Primitive exportation]{Primitive exportation}
+
+In order to use the estimated parametric primitives, we will have to export them in a format that other software can read. Therefore, \textit{DXF}, a standard CAD exchange format was chosen for planes and \textit{SCR} an AutoCAD scripting format for more complex primitives like cylinders or spheres. 
+
+To create the exported DXF file, we have used dxflib \cite{dxflib}, an open source library for the manipulation of DXF files.
+
+In order to highlight and export these primitives, some previous steps are needed. Namely, calculating the point-primitive distance and bounding the primitives. These two steps are extensively explained in \autoref{chapter_8}. 
+
+ToView supports the estimation of any number of primitives and the exportation in one step of all of them. The user just has to select the option export segmented primitive in the tools menu (see \autoref{tools_menu}).
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.55]{figures/autocad.png}
+	\caption[Segmented primitives in AutoCAD]{
+		A segmented plane, cylinder and sphere opened in autocad.
+	}
+	\label{autocad}
+\end{figure}
+
+This feature has the potential to substantially reduce the time needed to create CAD models of rooms, pipes, etc. (see \autoref{autocad}). It also has the potential to clean clouds faster, the surveyor just needs to click on a point to select the complete object (in contrast to manually selecting all the points), and then choose what to do with it. 
 
 \section[Results]{Results}
 

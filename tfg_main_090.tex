@@ -90,7 +90,17 @@ Firstly, a 3D voxel grid is a set of 3D boxes that cover a certain amount of spa
 
 \begin{equation}\label{eq:centroid} \mathbf{c} = \frac{1}{N}\sum_{j} \mathbf{p_{j}}, \; \forall \mathbf{p_{j}} \in \mathcal{V}_{N} \end{equation}
 
-Being $\mathbf{p}$ the position of the corresponding point. In \autoref{eq:centroid} we can substitute the position for the color, normals or any other attributes; to obtain the rest of the centroid data. The resulting centroid will be the downsampled point corresponding to the voxel in our new decimated cloud.
+Being $\mathbf{p}$ the position of the corresponding point. In \autoref{eq:centroid} we can substitute the position for the color, normals or any other attributes; to obtain the rest of the centroid data. The resulting centroid will be the downsampled point corresponding to the voxel in our new decimated cloud (see \autoref{voxel_results}).
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.7]{figures/vox_result.png}
+	\caption[Voxel grid filter comparison]{
+		Original dataset without filtering applied (\textbf{left}). Resulting downsampled dataset after filtering is applied (\textbf{right}). 
+	}
+	\label{voxel_results}
+\end{figure}
+
 
 This filter can also be used in cases in which noise is present due to unification of multiple scans. Since the same point can be scanned from multiple scanning positions, this will lead to visual artifacts as the illumination can change from one scan to another. With this filter we can eliminate the excess points, setting the same precision as the laser scanner used to obtain the cloud.
 
