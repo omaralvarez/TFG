@@ -1,0 +1,46 @@
+%
+% TÍTULO DEL CAPÍTULO
+%
+\chapter[Conclusions and future lines of work]{
+	Conclusions and future lines of work
+	\label{chapter_10}
+}
+
+In this chapter we will briefly take a look at the conclusions reached after finishing this project, and the possible future lines of work that the project can follow.
+
+\section[Conclusions]{Conclusions}
+
+The first conclusion reached, has been that all of the objectives of the project were met:
+
+\begin{itemize}
+\item Implement different visualization modes for point-based models.
+\item Combine different point clouds and transform them.
+\item Point picking.
+\item Apply operations to a part of the cloud or the complete dataset.
+\item Export the segmented objects to a CAD format. 
+\end{itemize}
+
+After finishing and achieving the aforementioned objectives, the other conclusions that have been reached are:
+
+\begin{itemize}
+\item \textbf{The spatial acceleration structure is key:} The interactivity that will be achievable when rendering the different datasets, will strictly depend on the acceleration structure employed. If we decided not to use a k-d tree, we would not be able to achieve interactive rendering times, and the computations like radii estimation would take months.
+\item \textbf{Multi-resolution is not always optimal:} When trying to compute exact values (i.e. point radii without estimation errors), a multi-resolution structure can hinder performance quite a bit, since exact k-neighbor searches take a lot more time.
+\item \textbf{Interactivity with massive clouds:} It is certainly possible to achieve interactivity even with clouds of $1000M$ points. If advanced rendering modes are desired, it will require a long preprocessing time. But once all the point features are estimated, the user will be able to interact in real-time.  
+\item \textbf{Too much density is not always good:} Sometimes when combining multiple high density scans, the result may need some preprocessing in order to achieve the best rendering quality. This is due to the fact that a lot of cluttered points in the same area, can cause clipping and undesired visual artifacts. 
+\item \textbf{Best rendering quality:} The best rendering quality is achieved using perspectively correct rasterization. This type of point rasterization yields the best results when approximating the splat shape on a custom shader.
+\item \textbf{Multi-threading:} The use of multiple threads can improve preprocessing and rendering times significantly on current processors. It can also improve interactivity since the GUI will not depend on the render thread.
+\item \textbf{GPGPU is not always the answer:} As seen in the results, if the workload is not complex enough to compensate for kernel setup time, GPU computation time will be higher than the time it takes using the CPU. This is why when trying to accelerate a workload, a GPU implementation may not always be the best option.
+\end{itemize} 
+
+\section[Future lines of work]{Future lines of work}
+
+After finalizing the work on this project, several ideas for the expansion of the visualizer come to mind:
+
+\begin{itemize}
+\item \textbf{WebGL:} Implementing a version of the visualizer in WebGL could make ToView usable in a greater variety of devices. That could mean that an engineer could use ToView right on the work site on his cellphone.
+\item \textbf{Streaming of point clouds:} In order to be able to utilize the visualizer on mobile platforms or on low-end machines, PCM would need the ability to stream point clouds over a network. This is due to the fact that the massive point clouds that ToView is able to display in real-time, are too big to fit on those devices. 
+\item \textbf{Advanced point shading:} As of now, we determine correctly what pixels will a point cover. The next step would be shading this splats so that visual artifacts are minimized. There are several shading techniques that could be used to improve rendering quality, Gouraud shading, Phong shading, etc.
+\item \textbf{Improve k-d tree construction:} The multi-resolution framework right now has no guarantee that points are distributed uniformly across levels. A new k-d tree building technique could ensure that in each level a certain point precision is reached. 
+\item \textbf{Improve level of detail algorithm:} The LOD algorithm in the visualizer is quite basic. A new technique taking into account human vision knowledge to improve the selection of tree nodes, would increase rendering quality substantially.
+\item \textbf{Hybrid point-polygon rendering:} Engineers will sometimes want to check how would a certain design impact a real environment. Right now we rely on plugins that obtain clouds relying on the sampling of polygons, but the optimal approach would be being able to directly render polygon models.
+\end{itemize} 
