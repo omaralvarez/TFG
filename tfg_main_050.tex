@@ -238,8 +238,8 @@ This process is completely transparent for the user, that will only have to use 
 \lstset{language=C++,frame=shadowbox,rulesepcolor=\color[gray]{0.8},lineskip=10pt, 
 		keywordstyle=\color{VioletRed}\bfseries,
 		emph={PointCloud}, emphstyle=\color{Emerald}\bfseries,
-		emph={[2]setChunkWriteL1,getNextDataGPU,getL1Entry,makeChangesGPU}, emphstyle={[2]\color{PineGreen}},label={l1_write} }
-\begin{lstlisting}
+		emph={[2]setChunkWriteL1,getNextDataGPU,getL1Entry,makeChangesGPU}, emphstyle={[2]\color{PineGreen}}}
+\begin{lstlisting}[caption={How to write data to L1 chunk.},captionpos=b,label={l1_write}]
  PointCloud cloud(...);
 
  while (cloud.getNextDataGPU(list)) {
@@ -299,8 +299,8 @@ This cache can work in one of two ways:
 This cache is capable of not only reading data from the HDD, but also writing modified data from RAM to disk. This is achieved in a similar fashion to the L1. A complete loop over the whole cloud to perform an operation using the CPU and then writing it to disk, can be seen in \autoref{l2_write}.
 \\
 \lstset{emph={PointCloud,Chunk}, emphstyle=\color{Emerald}\bfseries,
-		emph={[2]setChunkWriteL2,getNextData,getChunkL2,makeChanges,freeChunkL2}, emphstyle={[2]\color{PineGreen}},label={l2_write}}
-\begin{lstlisting}
+		emph={[2]setChunkWriteL2,getNextData,getChunkL2,makeChanges,freeChunkL2}, emphstyle={[2]\color{PineGreen}}}
+\begin{lstlisting}[caption={How to perform an operation using the L2 and store the changes.},captionpos=b,label={l2_write}]
  PointCloud cloud(...);
 
  while (cloud.getNextData(list)) {
@@ -366,3 +366,82 @@ The only system requirements are:
 \end{itemize} 
 
 With this tool the testing in multi-platform environments is greatly simplified.
+
+\section[Results]{Results}
+
+Two computers with different hardware where used for testing. The first, \textbf{Computer 1} has the following specs:
+
+\begin{itemize}
+	\item Intel Core i7-3770 CPU (4 cores, 8 threads)
+	\item NVIDIA GT 640 graphics card
+	\item 16 GB of 1600 MHz DDR3 RAM
+	\item WDC WD10EZRX HDD
+\end{itemize} 
+
+The second, \textbf{Computer 2} has the following specifications:
+
+\begin{itemize}
+	\item Intel Core i7-4930K CPU (6 cores, 12 threads)
+	\item NVIDIA GTX 780Ti graphics card
+	\item 16 GB of 2133 MHz DDR3 RAM
+	\item WD Caviar Black HDD
+\end{itemize} 
+
+The operating system used to run the tests was Windows 7 x64, with VC{}\verb!++! v110 compiler. The libraries used were:
+
+\begin{itemize}
+	\item OSG 3.0.1
+	\item Freeglut 2.8.1
+	\item GLEW 1.10.0
+	\item PCL 1.7.1
+\end{itemize} 
+
+The datasets that will be used for testing are described in \autoref{dataset_table}.
+
+\begin{table}
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+Image & Name & Points & Features \\
+\midrule
+ \raisebox{-.5\height}{\includegraphics[scale=0.13]{figures/castelao.png}} & Castelao & $\sim 500K$  & Color, Normals \\[1cm]
+ \raisebox{-.5\height}{\includegraphics[scale=0.13]{figures/dorna.png}} & Dorna & $\sim 3M$  & Color \\[1cm]
+ \raisebox{-.5\height}{\includegraphics[scale=0.13]{figures/oficina.png}} & Oficina & $\sim 30M$  & Color \\[1cm]
+ \raisebox{-.5\height}{\includegraphics[scale=0.13]{figures/lourizan.png}} & Lourizan & $\sim 90M$  & Color \\[1cm]
+ \raisebox{-.5\height}{\includegraphics[scale=0.13]{figures/CALD.png}} & CALD & $\sim 200M$  & Color \\[1cm]
+ \raisebox{-.5\height}{\includegraphics[scale=0.13]{figures/CALD.png}} & Baron & $\sim 500M$  & Color \\[1cm]
+ \raisebox{-.5\height}{\includegraphics[scale=0.13]{figures/castelo.png}} & Castelo & $\sim 1000M$  & Color \\
+\bottomrule
+\end{tabular}
+\end{center}
+\caption[Tested datasets]{
+		Table showing the datasets that were used when testing.
+}
+\label{dataset_table}
+\end{table}
+
+In the first test (see \autoref{radii_est_castelao}), we will estimate the radii using the CPU (using all threads available) and GPU. We can observe that as the chunk size decreases, the estimation is faster. This is because there are less intersection tests to be performed, since a lot of nodes can be discarded as they will not belong to the neighborhood of each point. 
+
+It is also interesting to highlight the fact that the GPU is slower than the CPU, this happens due to the setup of the OpenCL kernel. The transfering of information from RAM to VRAM and the kernel setup calls outweigh the benefits of the GPGPU implementation. This means, that the computation of the radii in GPU is faster, but when dealing with a relatively cheap operation like the former, the setup of the kernel takes too much time compared to the kernel execution time and makes the GPU lose against the CPU. 
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 1]{\label{fig:a}\includegraphics[width=0.49\textwidth]{figures/cpu_gpu_est_cast_640.pdf}}
+	\subfigure[Computer 2]{\label{fig:b}\includegraphics[width=0.49\textwidth]{figures/cpu_gpu_est_cast_640.pdf}}
+	\caption[CPU/GPU radii estimation Castelao]{
+		Graphs showing the estimation times in the Castelao dataset.
+	}
+	\label{radii_est_castelao}
+\end{figure}
+
+The next test also compares the radii estimation times in the two test machines, but this time with the Dorna dataset (see \autoref{radii_est_dorna}).
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 1]{\label{fig:a}\includegraphics[width=0.49\textwidth]{figures/cpu_gpu_est_cast_640.pdf}}
+	\subfigure[Computer 2]{\label{fig:b}\includegraphics[width=0.49\textwidth]{figures/cpu_gpu_est_cast_640.pdf}}
+	\caption[CPU/GPU radii estimation Dorna]{
+		Graphs showing the estimation times in the Dorna dataset.
+	}
+	\label{radii_est_dorna}
+\end{figure}

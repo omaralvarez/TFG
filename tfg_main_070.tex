@@ -35,14 +35,14 @@ This is the first step in splat rendering, it determines the pixels that a point
 For the highest performance, splats should be rendered using only one OpenGL point for each splat, using:
 \\
 \lstset{emph={[2]glDrawArrays}, emphstyle={[2]\color{PineGreen}},emph={[3]GL_POINTS}, emphstyle={[3]\color{RawSienna}}}
-\begin{lstlisting}
+\begin{lstlisting}[caption={Draw call to draw a set of splats.},captionpos=b]
  glDrawArrays(GL_POINTS, 0, VBOSize);
 \end{lstlisting}
 
 An optional output of a vertex shader is the point size, that when set to $s$, creates a image-space square of $s \times s$ pixels centered in the vertex position. Instead of squares, image aligned circles can be rendered by enabling point smoothing and MSAA:
 \\
 \lstset{emph={[2]glEnable}, emphstyle={[2]\color{PineGreen}},emph={[3]GL_POINT_SMOOTH}, emphstyle={[3]\color{RawSienna}}}
-\begin{lstlisting}
+\begin{lstlisting}[caption={OpenGL flag needed for point smoothing.},captionpos=b]
  glEnable(GL_POINT_SMOOTH);
 \end{lstlisting}
 
@@ -52,7 +52,7 @@ The screen-space size of the projected OpenGL point has to be adjusted in the ve
 \\
 \lstset{emph={[2]glEnable,glPointParameteri}, emphstyle={[2]\color{PineGreen}},emph={[3]GL_PROGRAM_POINT_SIZE,GL_POINT_SPRITE_COORD_ORIGIN,GL_LOWER_LEFT}, 
 		emphstyle={[3]\color{RawSienna}}}
-\begin{lstlisting}
+\begin{lstlisting}[caption={Flags needed for changing the point size in a vertex shader.},captionpos=b]
  glEnable(GL_PROGRAM_POINT_SIZE);
  glPointParameteri(GL_POINT_SPRITE_COORD_ORIGIN, GL_LOWER_LEFT);
 \end{lstlisting}
@@ -82,7 +82,7 @@ Fragments outside the splat will be discarded using the \textit{discard} GLSL co
 \\
 \lstset{emph={[2]glEnable}, emphstyle={[2]\color{PineGreen}},emph={[3]GL_POINT_SPRITE}, 
 		emphstyle={[3]\color{RawSienna}}}
-\begin{lstlisting}
+\begin{lstlisting}[caption={Flag needed to discard fragments in fragment shader.},captionpos=b]
  glEnable(GL_POINT_SPRITE);
 \end{lstlisting} 
 
