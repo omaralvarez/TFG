@@ -426,8 +426,8 @@ It is also interesting to highlight the fact that the GPU is slower than the CPU
 
 \begin{figure}[h]
 	\centering
-	\subfigure[Computer 1]{\label{fig:a}\includegraphics[width=0.49\textwidth]{figures/cpu_gpu_est_cast_640.pdf}}
-	\subfigure[Computer 2]{\label{fig:b}\includegraphics[width=0.49\textwidth]{figures/cpu_gpu_est_cast_640.pdf}}
+	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/cpu_gpu_est_cast_640.pdf}}
+	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/cpu_gpu_est_cast_780.pdf}}
 	\caption[CPU/GPU radii estimation Castelao]{
 		Graphs showing the estimation times in the Castelao dataset.
 	}
@@ -438,10 +438,84 @@ The next test also compares the radii estimation times in the two test machines,
 
 \begin{figure}[h]
 	\centering
-	\subfigure[Computer 1]{\label{fig:a}\includegraphics[width=0.49\textwidth]{figures/cpu_gpu_est_cast_640.pdf}}
-	\subfigure[Computer 2]{\label{fig:b}\includegraphics[width=0.49\textwidth]{figures/cpu_gpu_est_cast_640.pdf}}
+	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/cpu_gpu_est_dorna_640.pdf}}
+	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/cpu_gpu_est_dorna_780.pdf}}
 	\caption[CPU/GPU radii estimation Dorna]{
 		Graphs showing the estimation times in the Dorna dataset.
 	}
 	\label{radii_est_dorna}
 \end{figure}
+
+In addition to this compute tests, cache performance will be tested on the most demanding datasets available. The first dataset that will tested is Lourizan. In \autoref{l1_hits_chunk_vbo}, we can observe how L1 cache hits evolve depending on chunk size or VBO size. 
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/l1_hits_chunk_vbo_640.pdf}}
+	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/l1_hits_chunk_vbo_780.pdf}}
+	\caption[Hits versus chunk size versus VBO size in Lourizan]{
+		Graphs showing how hit rate on L1 behaves depending on chunk size and VBO size in Lourizan.
+	}
+	\label{l1_hits_chunk_vbo}
+\end{figure}
+
+We can see that the cache behaves better when using big VBO sizes, but this is not the whole picture. To have a real idea of the optimal cache parameters, we need to take a look at \autoref{l1_time_chunk_vbo}. This test compares load times against chunk sizes and VBO sizes. 
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/l1_time_chunk_vbo_640.pdf}}
+	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/l1_time_chunk_vbo_780.pdf}}
+	\caption[Load time vs. chunk size vs. VBO size in Lourizan]{
+		Graphs showing how load times on L1 evolve depending on chunk size and VBO size in Lourizan.
+	}
+	\label{l1_time_chunk_vbo}
+\end{figure}
+
+What can be deduced from this test, is that loading bigger chunk sizes in GPU memory takes more time in general, this was an expected result. What is most interesting about this second test, is the fact that we can see there is a sweet spot between 1-4 MB when loading VBOs. The loading time increases as we augment the VBO size, when trying to load the same amount of information. This is why we cannot just use the biggest VBO size available to increase hit rate. 
+
+Summing up, the optimal parameters are using an intermediate chunk size, and a VBO size between 1-4 MB. Besides testing the L1 cache, we have also tested the l2 cache. In this case, the first test performed compares the hit rate depending on the chunk size chosen (see \autoref{chunk_hits_lour}).   
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/chunk_hits_lour_3770.pdf}}
+	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/chunk_hits_lour_4930k.pdf}}
+	\caption[Chunk size vs. hit rate in Lourizan]{
+		Graphs showing how hit rate on L2 evolves depending on chunk size in Lourizan.
+	}
+	\label{chunk_hits_lour}
+\end{figure}
+
+At first sight, on the aforementioned test, one might think that the faster machine had worse results. As we will see in \autoref{chunk_misses_lour}, since the cache is never full, it means quite the opposite. The faster computer was able to load a lot more chunks, therefore, the compulsory misses are greater and the hit rate is lower.
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/chunk_misses_lour_3770.pdf}}
+	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/chunk_misses_lour_4930k.pdf}}
+	\caption[Chunk size vs. miss rate in Lourizan]{
+		Graphs showing how the miss rate on L2 evolves depending on chunk size in Lourizan.
+	}
+	\label{chunk_misses_lour}
+\end{figure}
+
+The last test performed, compares L2 loading time depending on chunk size (see \autoref{chunk_time_lour}). As we can see in the graph, the optimal chunk size depends on the machine. But it can be said with some confidence, that a size of $\sim 100K$ points is a safe bet when choosing the chunk size.
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/chunk_time_lour_3770.pdf}}
+	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/chunk_time_lour_4930k.pdf}}
+	\caption[Chunk size vs. load time in Lourizan]{
+		Graphs showing how the load times on L2 vary depending on chunk size in Lourizan.
+	}
+	\label{chunk_time_lour}
+\end{figure}
+
+The next dataset tested was CALD, with the same tests as Lourizan. Therefore, the first test performed was \autoref{l1_hits_chunk_vbo_cald}, in which we can see how L1 cache hits evolve depending on chunk size and VBO size. 
+
+%\begin{figure}[h]
+%	\centering
+%	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/l1_hits_chunk_vbo_cald_640.pdf}}
+%	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/l1_hits_chunk_vbo_cald_780.pdf}}
+%	\caption[Hits versus chunk size versus VBO size in CALD]{
+%		Graphs showing how hit rate on L1 behaves depending on chunk size and VBO size in CALD.
+%	}
+%	\label{l1_hits_chunk_vbo}
+%\end{figure} 
