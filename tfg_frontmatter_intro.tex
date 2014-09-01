@@ -9,13 +9,17 @@
 	Introduction
 }
 
-Computer Graphics is a discipline that creates graphics using a computer. Advances in computer graphics have had an impact on several media types such as for example, the movies and video games industry, civil engineering, etc.
 
-Images are normally captured by optical devices; such as cameras, LIDAR, mirrors, lenses, etc. Rendering is the process of generating an image from a model, the \emph{scene}, by means of a computer. A scene contains information like geometry, lighting, etc. about a virtual scene.
 
+
+
+
+Computer Graphics is the discipline that deals with creating, managing, analyzing and visualizing graphics using a computer, and it is closely linked to other disciplines such as Image Processing, Computer Vision or Machine Learning, among others. Advances in computer graphics have had an impact on several media types such as, for example, the movies and video games industry, civil engineering, medicine, etc.
+
+In computer graphics, \emph{rendering} is the process of generating a 2D image to be shown in a display. This process takes usually a virtual scene of 3D objects as input, containing data like geometry, lighting, cameras, etc.
 Typically, polygonal modeling has been the approach followed for modeling objects in the scene, approximating their surfaces using polygons. Point-based graphics focuses on points as the fundamental representation of the surfaces instead of polygons (see \figurename~\ref{poly_comp}).
 
-\begin{figure}[h]
+\begin{figure}
 	\centering
 	\includegraphics[scale=0.6]{figures/pol_comp.pdf}
 	\caption[Modeling types comparison]{
@@ -24,19 +28,39 @@ Typically, polygonal modeling has been the approach followed for modeling object
 	\label{poly_comp}
 \end{figure}
 
-Using point based representations, the polygonal approximation step can be skipped and the massive amount of captured data is directly used.
+Nowadays, acquisition technologies such as LIDAR (Laser Imaging
+Detection and Ranging) allow us to obtain high-precision
+georeferenced 3D scans of the real world in an easy and fast way.
+These systems use ultraviolet, visible or near infrared light to image objects. It can target a wide range of materials and even single molecules. A narrow laser beam can map features with very high precision.
+The evolution of this kind of technologies is having a tremendous
+impact in multiple fields in the engineering, and bringing back the
+campwork to the office has become a standard practice.
+This presents clear advantages compared to the classical work-flow in
+disciplines like topography, that usually need to come back on the
+ground each time a new measurement is required.
 
-All of these concepts will be explained in depth in their corresponding chapters. 
+These scanning devices generate data-sets with an enormous number of
+samples, with 3D coordinates and additional data such as color,
+reflectivity and so on. These point clouds, as they are usually
+named, are formed by hundreds or thousands of points, resulting in
+Giga or even tera-bytes of information.
+Using point based representations, the polygonal approximation step
+can be skipped and the massive amount of captured data is directly
+used. However, managing these huge data-sets, either for applying some kind of data
+analysis or for visualization, is a computational challenge and an
+open and state-of-the-art problem. This project deals with this question.
+
+This chapter introduces the motivation behind the project and the
+objectives we try to achieve. It shows the structure of this document
+as well.
 
 \section[Motivation and context]{
 	Project motivation and context
 }
 
-Lately, 3D acquisition systems (commonly known as LIDAR\footnote{\textit{Laser Imaging Detection And Ranging}}) have evolved causing a revolution in work methodologies of several disciplines, from civil engineering, architecture, cultural heritage, movies to videogames. These systems use ultraviolet, visible or near infrared light to image objects. It can target a wide range of materials and even single molecules. A narrow laser beam can map features with very high precision.
+PCM is a software library developed in the University of A Coruña for the management of huge point datasets obtained by LIDAR in commodity hardware systems. It was started as a MSc Final Project~\cite{Jaspe12} (system structure and basic capabilities) in the Faculty of Computer Science and then continued in a BSc Final Project~\cite{Jaspe13} (improved render and other minor additions).
 
-Each sample obtained will possess coordinates (x,y,z), color, normal, temperature, etc. This information can be used to obtain measurements, calculations, etc. without having to repeat the capture process again each time we want to measure something new already present in the dataset. This presents clear advantages compared to the classical work-flow of a topographer that would have to measure on site each time a new measurement is required.       
-
-PCM \cite{PCM} is a software library developed by the UDC\footnote{\textit{University of A Coruña}} for the management of big point datasets obtained using LIDAR. PCM includes basic memory hierarchy management, making it possible to transfer the point cloud data between secondary memory (HDD) and video memory in the graphics card. PCM includes a very basic visualizer, that has the potential to become the seed for a more advanced point cloud software tool that will allow the user to access all of these features in real-time.   
+PCM is based on a multi-resolution structure and includes basic memory hierarchy management, making it possible to transfer the point cloud data between secondary memory (HDD) and video memory in the graphics card. Originally, PCM includes a very basic visualizer, quite simple and limited but that has the potential to become the seed for a more advanced point cloud software tool that will allow the user to access all of these features in real-time.
 
 Because of the massive nature of these datasets (some of them possess more than a billion points) achieving real-time manipulation of them is a complex task. It will require the improvement of PCM and a careful performance analysis. Having a system that is able to deal with these amounts of data, will let the user take advantage of the full precision of the capture devices if needed. 
 
