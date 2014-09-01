@@ -320,5 +320,52 @@ ToView supports the estimation of any number of primitives and the exportation i
 
 This feature has the potential to substantially reduce the time needed to create CAD models of rooms, pipes, etc. (see \autoref{autocad}). It also has the potential to clean clouds faster, the surveyor just needs to click on a point to select the complete object (in contrast to manually selecting all the points), and then choose what to do with it. 
 
-\section[Results]{Results}
+\section[Results]{\label{sec:tov_results}Results}
 
+Again, two different computers were used for testing. The first, \textbf{Computer 3} has the following specs:
+
+\begin{itemize}
+	\item Intel Core i7-2600K CPU (4 cores, 8 threads)
+	\item NVIDIA GTX 680 graphics card
+	\item 8 GB of 1600 MHz DDR3 RAM
+	\item WD Caviar Black HDD
+\end{itemize} 
+
+The second, \textbf{Laptop 1} has the following specifications:
+
+\begin{itemize}
+	\item Intel Core i7-3632QM CPU (4 cores, 8 threads)
+	\item NVIDIA GT 720M graphics card
+	\item 16 GB of 1333 MHz DDR3L RAM
+	\item SSHD
+\end{itemize} 
+
+The operating systems used to run the tests were: 
+
+\begin{itemize}
+	\item Windows 7 x64 with the VC{}\verb!++! v110 compiler
+	\item Ubuntu 14.04 x64 with the GCC 4.8 compiler
+\end{itemize} 
+
+The libraries used were:
+
+\begin{itemize}
+	\item QT 5.3
+	\item OSG 3.0.1
+	\item GLEW 1.10.0
+	\item PCL 1.7.1
+\end{itemize} 
+
+The datasets that will be used for testing are described in \autoref{dataset_table}. The L1 cache size used in Computer 1 was 1500 MB, while in Laptop 1 was 512 MB. In addition, the L2 cache size used in Computer 1 was 4 GB and in Laptop 1 was 1 GB. The cache settings used are those recommended in \autoref{sec:res_pcm}
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 3]{\includegraphics[width=0.49\textwidth]{figures/desktop_lour.pdf}}
+	\subfigure[Laptop 1]{\includegraphics[width=0.49\textwidth]{figures/laptop_lour.pdf}}
+	\caption[FPS obtained in Lourizan]{
+		Graphs showing the FPS that ToView achieves in the Lourizan dataset.
+	}
+	\label{fps_lour}
+\end{figure}
+
+Since the smaller datasets tested (Castelao, Dorna, etc.) obtained 60 FPS in both computers, we will not present graphs with the results. The first truly taxing dataset tested was lourizan as can be seen on \autoref{fps_lour}.

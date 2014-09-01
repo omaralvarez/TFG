@@ -367,9 +367,9 @@ The only system requirements are:
 
 With this tool the testing in multi-platform environments is greatly simplified.
 
-\section[Results]{Results}
+\section[Results]{\label{sec:res_pcm}Results}
 
-Two computers with different hardware where used for testing. The first, \textbf{Computer 1} has the following specs:
+Two computers with different hardware were used for testing. The first, \textbf{Computer 1} has the following specs:
 
 \begin{itemize}
 	\item Intel Core i7-3770 CPU (4 cores, 8 threads)
@@ -387,7 +387,7 @@ The second, \textbf{Computer 2} has the following specifications:
 	\item WD Caviar Black HDD
 \end{itemize} 
 
-The operating system used to run the tests was Windows 7 x64, with VC{}\verb!++! v110 compiler. The libraries used were:
+The operating system used to run the tests was Windows 7 x64, with the VC{}\verb!++! v110 compiler. The libraries used were:
 
 \begin{itemize}
 	\item OSG 3.0.1
@@ -484,7 +484,7 @@ Summing up, the optimal parameters are using an intermediate chunk size, and a V
 	\label{chunk_hits_lour}
 \end{figure}
 
-At first sight, on the aforementioned test, one might think that the faster machine had worse results. As we will see in \autoref{chunk_misses_lour}, since the cache is never full, it means quite the opposite. The faster computer was able to load a lot more chunks, therefore, the compulsory misses are greater and the hit rate is lower.
+On the aforementioned test, that for some chunk sizes the faster machine had worse results came as a surprise. As we will see in \autoref{chunk_misses_lour}, since the cache is never full using this configuration, this may be one of the reasons the weaker machine was faster on some cases. But taking all tests into account, L1 and L2, the faster computer still comes out on top.
 
 \begin{figure}[h]
 	\centering
@@ -508,14 +508,188 @@ The last test performed, compares L2 loading time depending on chunk size (see \
 	\label{chunk_time_lour}
 \end{figure}
 
-The next dataset tested was CALD, with the same tests as Lourizan. Therefore, the first test performed was \autoref{l1_hits_chunk_vbo_cald}, in which we can see how L1 cache hits evolve depending on chunk size and VBO size. 
+The next dataset tested was CALD, in which the same tests were performed. Therefore, the first test performed was \autoref{l1_hits_chunk_vbo_cald}, in which we can see how L1 cache hits evolve depending on chunk size and VBO size. 
 
-%\begin{figure}[h]
-%	\centering
-%	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/l1_hits_chunk_vbo_cald_640.pdf}}
-%	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/l1_hits_chunk_vbo_cald_780.pdf}}
-%	\caption[Hits versus chunk size versus VBO size in CALD]{
-%		Graphs showing how hit rate on L1 behaves depending on chunk size and VBO size in CALD.
-%	}
-%	\label{l1_hits_chunk_vbo}
-%\end{figure} 
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/l1_hits_chunk_vbo_cald_640.pdf}}
+	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/l1_hits_chunk_vbo_cald_780.pdf}}
+	\caption[Hits versus chunk size versus VBO size in CALD]{
+		Graphs showing how hit rate on L1 behaves depending on chunk size and VBO size in CALD.
+	}
+	\label{l1_hits_chunk_vbo_cald}
+\end{figure} 
+
+Next, the test that compares load times against chunk sizes and VBO sizes (see \autoref{l1_time_chunk_vbo_cald}). The tests performed in L1 corroborate the results of the tests performed with Lourizan. The only difference that can be seen, is the fact that in Lourizan the faster computer was able to load every chunk requested with a big array of configurations (see \autoref{l1_hits_chunk_vbo} and \autoref{l1_hits_chunk_vbo_cald}). With this dataset the graph resembles more the graph of the slower machine.
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/l1_time_chunk_vbo_cald_640.pdf}}
+	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/l1_time_chunk_vbo_cald_780.pdf}}
+	\caption[Load time vs. chunk size vs. VBO size in CALD]{
+		Graphs showing how load times on L1 evolve depending on chunk size and VBO size in CALD.
+	}
+	\label{l1_time_chunk_vbo_cald}
+\end{figure}
+
+The next test performed compares the hit and miss rate depending on the chunk size chosen in L2 (see \autoref{chunk_hits_CALD} and \autoref{chunk_misses_CALD}).   
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/chunk_hits_cald_3770.pdf}}
+	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/chunk_hits_cald_4930k.pdf}}
+	\caption[Chunk size vs. hit rate in CALD]{
+		Graphs showing how hit rate on L2 evolves depending on chunk size in CALD.
+	}
+	\label{chunk_hits_CALD}
+\end{figure}
+
+These results mimic the last results obtained when using the Lourizan dataset. Although, these are not the best datasets to test the L2 cache, since they are not big enough to fill the cache. The two remaining datasets will be true stress tests for the L2 cache when using this configuration.
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/chunk_misses_cald_3770.pdf}}
+	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/chunk_misses_cald_4930k.pdf}}
+	\caption[Chunk size vs. miss rate in CALD]{
+		Graphs showing how the miss rate on L2 evolves depending on chunk size in CALD.
+	}
+	\label{chunk_misses_CALD}
+\end{figure} 
+
+The last test compares L2 loading time depending on chunk size (see \autoref{chunk_time_cald}). As we can see in the graph, the stronger machine is faster for every chunk size. The only chunk size in which the weaker machine can compete is the biggest one tested.
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/chunk_time_cald_3770.pdf}}
+	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/chunk_time_cald_4930k.pdf}}
+	\caption[Chunk size vs. load time in CALD]{
+		Graphs showing how the load times on L2 vary depending on chunk size in CALD.
+	}
+	\label{chunk_time_cald}
+\end{figure}
+
+The next dataset tested was Baron, in which the same battery of tests were performed. As a consequence, the first test performed was \autoref{l1_hits_chunk_vbo_baron}, in which we can see how L1 cache hits evolve depending on chunk size and VBO size. 
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/l1_hits_chunk_vbo_baron_640.pdf}}
+	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/l1_hits_chunk_vbo_baron_780.pdf}}
+	\caption[Hits versus chunk size versus VBO size in Baron]{
+		Graphs showing how hit rate on L1 behaves depending on chunk size and VBO size in Baron.
+	}
+	\label{l1_hits_chunk_vbo_baron}
+\end{figure} 
+
+Next, the test that compares load times against chunk sizes and VBO sizes (see \autoref{l1_time_chunk_vbo_baron}). The tests performed in L1 corroborate the results of the tests performed with the Lourizan and CALD datasets. No further conclusions have been reached with this new dataset.
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/l1_time_chunk_vbo_baron_640.pdf}}
+	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/l1_time_chunk_vbo_baron_780.pdf}}
+	\caption[Load time vs. chunk size vs. VBO size in Baron]{
+		Graphs showing how load times on L1 evolve depending on chunk size and VBO size in Baron.
+	}
+	\label{l1_time_chunk_vbo_baron}
+\end{figure}
+
+The next test performed compares the hit and miss rate of the L2 cache depending on the chunk size chosen (see \autoref{chunk_hits_baron} and \autoref{chunk_misses_baron}).
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/chunk_hits_baron_3770.pdf}}
+	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/chunk_hits_baron_4930k.pdf}}
+	\caption[Chunk size vs. hit rate in Baron]{
+		Graphs showing how hit rate on L2 evolves depending on chunk size in Baron.
+	}
+	\label{chunk_hits_baron}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/chunk_misses_baron_3770.pdf}}
+	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/chunk_misses_baron_4930k.pdf}}
+	\caption[Chunk size vs. miss rate in Baron]{
+		Graphs showing how the miss rate on L2 evolves depending on chunk size in Baron.
+	}
+	\label{chunk_misses_baron}
+\end{figure} 
+
+These results mimic the results obtained when using the Lourizan and CALD datasets. The stronger machine clearly has a big advantage, that when dealing with bigger datasets increases even further.
+
+The last test compares L2 loading time depending on chunk size (see \autoref{chunk_time_baron}). As we can see in the graph, the stronger machine is faster for every chunk size. The weaker machine is not able to compete anymore when dealing with the Baron dataset.
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/chunk_time_baron_3770.pdf}}
+	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/chunk_time_baron_4930k.pdf}}
+	\caption[Chunk size vs. load time in Baron]{
+		Graphs showing how the load times on L2 vary depending on chunk size in Baron.
+	}
+	\label{chunk_time_baron}
+\end{figure}
+
+To sum up, the gap between Computer 1 and Computer 2 gets bigger as the dataset sizes increase. This behavior was expected since the tree gets bigger and cache performance becomes more crucial. The bigger 12 MB cache in the CPU also should help the faster machine achieve better results. 
+
+The last dataset tested was Castelo, in which once more, the same battery of tests were performed. Consequently, the first test performed was \autoref{l1_hits_chunk_vbo_castelo}, in which we can see how L1 cache hits change depending on chunk size and VBO size. 
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/l1_hits_chunk_vbo_castelo_640.pdf}}
+	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/l1_hits_chunk_vbo_castelo_780.pdf}}
+	\caption[Hits versus chunk size versus VBO size in Castelo]{
+		Graphs showing how hit rate on L1 behaves depending on chunk size and VBO size in Castelo.
+	}
+	\label{l1_hits_chunk_vbo_castelo}
+\end{figure} 
+
+Next, the test that compares load times against chunk sizes and VBO sizes (see \autoref{l1_time_chunk_vbo_castelo}). The tests performed in L1 corroborate the results of the tests performed with the Lourizan, CALD and Baron datasets. No further conclusions have been reached by testing this new dataset.
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/l1_time_chunk_vbo_castelo_640.pdf}}
+	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/l1_time_chunk_vbo_castelo_780.pdf}}
+	\caption[Load time vs. chunk size vs. VBO size in Castelo]{
+		Graphs showing how load times on L1 evolve depending on chunk size and VBO size in Castelo.
+	}
+	\label{l1_time_chunk_vbo_castelo}
+\end{figure}
+
+The next test performed compares the hit and miss rate of the L2 cache depending on the chunk size chosen (see \autoref{chunk_hits_castelo} and \autoref{chunk_misses_castelo}).
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/chunk_hits_castelo_3770.pdf}}
+	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/chunk_hits_castelo_4930k.pdf}}
+	\caption[Chunk size vs. hit rate in Castelo]{
+		Graphs showing how hit rate on L2 evolves depending on chunk size in Castelo.
+	}
+	\label{chunk_hits_castelo}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/chunk_misses_castelo_3770.pdf}}
+	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/chunk_misses_castelo_4930k.pdf}}
+	\caption[Chunk size vs. miss rate in Castelo]{
+		Graphs showing how the miss rate on L2 evolves depending on chunk size in Castelo.
+	}
+	\label{chunk_misses_castelo}
+\end{figure} 
+
+These results gain confirm the results obtained when using the Lourizan, CALD and Baron datasets. The stronger machine clearly has a big advantage, as this is the most demanding dataset tested in this round of testing.
+
+The last test compares L2 loading time depending on chunk size (see \autoref{chunk_time_castelo}). As we can see in the graph, Computer 2 is faster for every chunk size beating Computer 1 by a big margin. The weaker machine was not able to compete in the Baron dataset and with the Castelao dataset is even worse.
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/chunk_time_castelo_3770.pdf}}
+	\subfigure[Computer 2]{\includegraphics[width=0.49\textwidth]{figures/chunk_time_castelo_4930k.pdf}}
+	\caption[Chunk size vs. load time in Castelo]{
+		Graphs showing how the load times on L2 vary depending on chunk size in Castelo.
+	}
+	\label{chunk_time_castelo}
+\end{figure}
+
+In conclusion, PCM scales well when dealing with massive point clouds. Of course, when running on machines with weaker hardware, there will be a dip in performance. But, our objective was satisfied, since PCM was able to work with massive datasets on low and mid-range machines. This fact will be better seen on \autoref{sec:tov_results}, since a Linux laptop was used for the tests performed. 
+
+All of the operations that PCM is able to perform are out of core, this means that all of the operations run in the tests are applicable to clouds of arbitrary sizes. This is specially valuable when dealing with the extremely dense clouds that scanners provide nowadays. The biggest cloud that has been tested in PCM has been an artificially generated $\sim 12KM$ point cloud. This cloud is orders of magnitude bigger than the clouds that point cloud software is able to deal with nowadays. This makes PCM an unique piece of software in its class, that is prepared even for future datasets that are even more demanding.   
