@@ -293,4 +293,58 @@ Once we have all the intersection points, we will have more than two intersectio
 
 Finally, the two cylinder bases will be the two closest points to the AABB center. This is the last step necessary to get the cylinder ready for exportation.
 
-  
+\section[Results]{Results}
+
+To test the different algorithms we will compare the estimation times achieved with them. We will first test a 3038 point sample, from which we want to estimate a plane (see \autoref{ransac_table_3k}).
+
+\begin{table}[h]
+	\begin{center}
+    \begin{tabular}{cc}
+    \toprule
+    Algorithm & Time(ms) \\
+    \midrule
+    RANSAC & 71.886 \\
+    MSAC & 71.8124 \\
+    MLESAC & 106.342 \\
+    PROSAC & 71.641 \\
+    RRANSAC & 71.5368 \\
+    \bottomrule
+    \end{tabular}
+    \end{center}
+	\caption[RANSAC testing results]{
+		Table showing the estimation times achieved with each algorithm.
+	}
+	\label{ransac_table_3k}
+\end{table}
+
+As we can see, the fastest algorithm is RRANSAC. Although, we have to keep in mind that the most robust algorithms are MSAC and MLESAC after thorough testing. In light of these results, the chosen method to estimate primitives in ToView was MSAC. The following segmentations were performed using the aforementioned algorithm: \autoref{plane_seg}, \autoref{cylinder_seg} and \autoref{sphere_seg}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.4]{figures/seg_plane.png}
+	\caption[Plane segmentation test]{
+		Segmented plane using ToView.
+	}
+	\label{plane_seg}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.4]{figures/seg_cyl_r.png}
+	\caption[Cylinder segmentation test]{
+		Segmented cylinder using ToView.
+	}
+	\label{cylinder_seg}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.4]{figures/seg_sph.png}
+	\caption[Sphere segmentation test]{
+		Segmented sphere using ToView.
+	}
+	\label{sphere_seg}
+\end{figure}
+
+
+

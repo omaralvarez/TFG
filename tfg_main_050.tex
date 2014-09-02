@@ -409,7 +409,7 @@ Image & Name & Points & Features \\
  \raisebox{-.5\height}{\includegraphics[scale=0.13]{figures/oficina.png}} & Oficina & $\sim 30M$  & Color \\[1cm]
  \raisebox{-.5\height}{\includegraphics[scale=0.13]{figures/lourizan.png}} & Lourizan & $\sim 90M$  & Color \\[1cm]
  \raisebox{-.5\height}{\includegraphics[scale=0.13]{figures/CALD.png}} & CALD & $\sim 200M$  & Color \\[1cm]
- \raisebox{-.5\height}{\includegraphics[scale=0.13]{figures/CALD.png}} & Baron & $\sim 500M$  & Color \\[1cm]
+ \raisebox{-.5\height}{\includegraphics[scale=0.13]{figures/baron.png}} & Baron & $\sim 500M$  & Color \\[1cm]
  \raisebox{-.5\height}{\includegraphics[scale=0.13]{figures/castelo.png}} & Castelo & $\sim 1000M$  & Color \\
 \bottomrule
 \end{tabular}
@@ -614,7 +614,7 @@ The next test performed compares the hit and miss rate of the L2 cache depending
 	\label{chunk_misses_baron}
 \end{figure} 
 
-These results mimic the results obtained when using the Lourizan and CALD datasets. The stronger machine clearly has a big advantage, that when dealing with bigger datasets increases even further.
+These results mimic the results obtained when using the Lourizan and CALD datasets. The stronger machine clearly has a big advantage, that when dealing with bigger datasets increases even further. But this is the first dataset where 4 GB of memory is not enough to store the complete dataset. This is the reason why we start to see a lot of capacity misses, that eventually surpass the compulsory misses. This is the first big test for our L2 cache, that even when full keeps an acceptable hit rate.
 
 The last test compares L2 loading time depending on chunk size (see \autoref{chunk_time_baron}). As we can see in the graph, the stronger machine is faster for every chunk size. The weaker machine is not able to compete anymore when dealing with the Baron dataset.
 
@@ -666,6 +666,8 @@ The next test performed compares the hit and miss rate of the L2 cache depending
 	\label{chunk_hits_castelo}
 \end{figure}
 
+These results gain confirm the results obtained when using the Lourizan, CALD and Baron datasets. The stronger machine clearly has a big advantage, as this is the most demanding dataset tested in this round of testing. The advantage is so big, that even in the first sample capacity misses are greater that compulsory misses. As a consequence, we do not see the graphed miss lines cross at any point. 
+
 \begin{figure}[h]
 	\centering
 	\subfigure[Computer 1]{\includegraphics[width=0.49\textwidth]{figures/chunk_misses_castelo_3770.pdf}}
@@ -675,8 +677,6 @@ The next test performed compares the hit and miss rate of the L2 cache depending
 	}
 	\label{chunk_misses_castelo}
 \end{figure} 
-
-These results gain confirm the results obtained when using the Lourizan, CALD and Baron datasets. The stronger machine clearly has a big advantage, as this is the most demanding dataset tested in this round of testing.
 
 The last test compares L2 loading time depending on chunk size (see \autoref{chunk_time_castelo}). As we can see in the graph, Computer 2 is faster for every chunk size beating Computer 1 by a big margin. The weaker machine was not able to compete in the Baron dataset and with the Castelao dataset is even worse.
 

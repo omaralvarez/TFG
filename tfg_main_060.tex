@@ -326,7 +326,7 @@ Again, two different computers were used for testing. The first, \textbf{Compute
 
 \begin{itemize}
 	\item Intel Core i7-2600K CPU (4 cores, 8 threads)
-	\item NVIDIA GTX 680 graphics card
+	\item NVIDIA GTX 680 graphics card (2560x1440)
 	\item 8 GB of 1600 MHz DDR3 RAM
 	\item WD Caviar Black HDD
 \end{itemize} 
@@ -335,7 +335,7 @@ The second, \textbf{Laptop 1} has the following specifications:
 
 \begin{itemize}
 	\item Intel Core i7-3632QM CPU (4 cores, 8 threads)
-	\item NVIDIA GT 720M graphics card
+	\item NVIDIA GT 720M graphics card (1366x768)
 	\item 16 GB of 1333 MHz DDR3L RAM
 	\item SSHD
 \end{itemize} 
@@ -343,8 +343,8 @@ The second, \textbf{Laptop 1} has the following specifications:
 The operating systems used to run the tests were: 
 
 \begin{itemize}
-	\item Windows 7 x64 with the VC{}\verb!++! v110 compiler
-	\item Ubuntu 14.04 x64 with the GCC 4.8 compiler
+	\item Computer 3: Windows 7 x64 with the VC{}\verb!++! v110 compiler
+	\item Laptop 1: Ubuntu 14.04 x64 with the GCC 4.8 compiler
 \end{itemize} 
 
 The libraries used were:
@@ -368,4 +368,50 @@ The datasets that will be used for testing are described in \autoref{dataset_tab
 	\label{fps_lour}
 \end{figure}
 
-Since the smaller datasets tested (Castelao, Dorna, etc.) obtained 60 FPS in both computers, we will not present graphs with the results. The first truly taxing dataset tested was lourizan as can be seen on \autoref{fps_lour}.
+Since the smaller datasets tested (Castelao, Dorna, etc.) obtained more or less 60 FPS in both computers, we will not present graphs with the results. The first truly taxing dataset tested was lourizan as can be seen on \autoref{fps_lour}. In the graph we can see that both computers keep a good level of interactivity when rendering the Lourizan dataset. 
+
+Computer 3 will allow a better representation of the scene, since the cache sizes are bigger and more points will be rendered onscreen. Furthermore, Computer 3 does not dip below 30 FPS in much occasions when rendering this dataset.
+
+The next dataset tested was CALD, as can be seen on \autoref{fps_cald}. This dataset is harder on both Computer 3 and Laptop 1, as we can see in the graphs. A lot more dips below 30 FPS on both computers can be seen as soon as the caches start filling up. 
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 3]{\includegraphics[width=0.49\textwidth]{figures/desktop_cald.pdf}}
+	\subfigure[Laptop 1]{\includegraphics[width=0.49\textwidth]{figures/laptop_cald.pdf}}
+	\caption[FPS obtained in CALD]{
+		Graphs showing the FPS that ToView achieves in the CALD dataset.
+	}
+	\label{fps_cald}
+\end{figure}
+
+Although performance starts to suffer on this massive datasets, we still can interact without much trouble with the point clouds even in Laptop 1. Furthermore, the Baron dataset was also tested on both machines, the results can be seen on \autoref{fps_baron}.
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 3]{\includegraphics[width=0.49\textwidth]{figures/desktop_baron.pdf}}
+	\subfigure[Laptop 1]{\includegraphics[width=0.49\textwidth]{figures/laptop_baron.pdf}}
+	\caption[FPS obtained in Baron]{
+		Graphs showing the FPS that ToView achieves in the Baron dataset.
+	}
+	\label{fps_baron}
+\end{figure}
+
+These results are truly impressive, where the true potential of PCM and ToView shines. When starting to deal with massively dense point clouds we can see that both computers have dipped below 30 FPS, but still keep interactivity. Even more impressive is that when using the laptop the sensation was smooth even with low FPS, achieving this with other software is complicated to say the least. 
+
+Finally, the last dataset used when testing ToView was Castelo. This is the biggest dataset at our disposal, a truly massive scene. The results of this test can be seen in \autoref{fps_castelo}.
+
+\begin{figure}[h]
+	\centering
+	\subfigure[Computer 3]{\includegraphics[width=0.49\textwidth]{figures/desktop_castelo.pdf}}
+	\subfigure[Laptop 1]{\includegraphics[width=0.49\textwidth]{figures/laptop_castelo.pdf}}
+	\caption[FPS obtained in Castelo]{
+		Graphs showing the FPS that ToView achieves in the Castelo dataset.
+	}
+	\label{fps_castelo}
+\end{figure}
+
+In this last test Laptop 1 truly suffers, but still keeps some impressive numbers taking into account that Castelo is a $\sim 1KM$ point cloud. Computer 3 also fares pretty good on this dataset, frames are always around 30 FPS. 
+
+Summing up, running ToView in almost any kind of computer is possible. Taking a look at these results we can see that ToView can be run perfectly in a 650 \euro{} laptop, if we wanted higher rendering quality, we would have to invest on a more powerful machine, but ToView and PCM can adapt to low resource situations perfectly. 
+
+ToView thanks to QT can also run natively on Linux, Windows, etc. This makes ToView a tool with a lot of versatility, that should be able to be adapted to any engineering workflow. 
