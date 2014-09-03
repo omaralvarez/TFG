@@ -5,13 +5,13 @@
 	\label{chapter_2}
 }
 
-This chapter explains what software development method was used in the project. We are strong believers in agile software development, above all for research oriented projects like this. In the next sections, some basic concepts of this development philosophy are introduced, as well as how it was applied in our project. Furthermore, a Gantt chart with the different steps and periods of the development is presented so that the reader can see how long each element of the project took. Since this is a project that requires a lot of research, it is difficult to plan ahead; because we do not know how long we are going to spend on a certain element. Finally we will give a cost table with the estimated project cost.
+This chapter explains what software development method was used in the project. We are strong believers in agile software development, above all for research-oriented projects with few main developers like this. In the next sections, some basic concepts of this development philosophy are introduced, as well as how it was applied in our project. Additionally, a Gantt chart with the different steps and periods in the development of the project is presented. Since this is a project that requires a lot of research, it is difficult to plan ahead every step, since we do not know how long we are going to spend on certain elements. Finally, a cost table with the estimated cost for a project of this type is included as well.
 
-\section[Agile software development]{Agile software development}
+\section{Agile software development}
 
 Agile software development \cite{agiledev} is a combination of development methods that use iterative and incremental development, where requirements and solutions mature through collaboration between self-organizing, cross-functional teams. The motto of this method is ``embrace change''; that is why it encourages adaptive planning, evolutionary development and delivery, a time-boxed iterative approach, and promotes quick and flexible response to change.
 
-\subsection[Agile manifesto]{Agile manifesto}
+\subsection{Agile manifesto}
 
 In February of 2001, several developers met at Snowbird, Utah resort, to debate different lightweight development methods. They published the \emph{Manifesto for Agile Software Development} \cite{agilemani} to define the approach that is now called agile software development. 
 
@@ -37,7 +37,7 @@ More principles are mentioned in the manifesto, some of them are:
 \item Simplicity.
 \end{itemize}
 
-Agile methods break down task into small increments with minimal planning and normally long-term planning is not directly involved. \emph{Iterations} are short timeframes that typically last from one to four weeks. A team works in each iteration through a full software development cycle; including planning, requirements analysis, design, coding, etc. This minimizes risk and facilitates adaptation to change. An iteration may not add enough new functionalities to warrant a market release, but the objective is to have an available release at the end of each iteration. 
+Agile methods break down tasks into small increments with minimal planning and normally long-term planning is not directly involved. \emph{Iterations} are short timeframes that typically last from one to four weeks. A team works in each iteration through a full software development cycle; including planning, requirements analysis, design, coding, etc. This minimizes risk and facilitates adaptation to change. An iteration may not add enough new functionalities to warrant a market release, but the objective is to have an available release at the end of each iteration. 
 
 Team composition does not depend on corporate hierarchies or corporate roles of team members. They normally have the responsability of completing tasks that deliver the required functionalities that an iteration requires. How to meet an iteration's objectives is decided individually.
 
@@ -51,7 +51,7 @@ Most agile methods encourage a routine that includes daily face-to-face communic
 
 As agile development emphasizes on working software as the primary measure of progress and has a clear preference in face-to-face communication this results in less written documentation than other methods. This does not mean that documentation should be disregarded, but that less emphasis is made on documentation because is not needed as much.
 
-\subsection[XP]{Extreme programming}
+\subsection{Extreme programming}
 
 Extreme Programming Explained \cite{XP} describes this method as a software-development discipline that lays out how to organize people to produce higher-quality software more productively.
 
@@ -91,18 +91,16 @@ Extreme programming also introduces a number of basic values, principles and pra
 	\end{itemize}
 \end{itemize}
 
-\subsection[Application]{Application}
+\subsection{Application}
 
-We have used in our project several of the premises of agile software development. We have used approximately weekly or biweekly iterations focused on completing simple objectives that would yield working software. The work in each iteration has been constant and diligent, focusing always on completing the task at hand, but not avoiding changes if it was deemed necessary. 
+Several of the premises of the agile software development were applied in this project. We have used approximately weekly or biweekly iterations focused on completing simple objectives that would yield working software. The work in each iteration has been constant and diligent, focusing always on completing the task at hand, but not avoiding changes if it was deemed necessary. 
 
-Also several XP practices were used in the project. Such as user stories (see \figurename~\ref{story_cards}), were each planned functionality was broken up in stories if big enough. Then the effort to implement each story was estimated directly since the estimation units are simple enough to provide a rough estimate, but because of the nature of the project this estimates were not very precise even when estimating just small units. They were just meant as guidance and mainly used to keep track of progress.  Another practice followed was an informative workspace, the story cards were stuck to the wall so they were easily visible to everybody. They were also organized in groups, so the progress in each functional area was easily tracked.
+Also several XP practices were used in the project, such as user stories (an example is shown in \figurename~\ref{story_cards}). Thus, each planned functionality was broken up in multiple stories if it is big enough. Then the effort to implement each story was approximated, since the estimation units are simple enough to provide a rough estimation. This estimation were just meant as guidance and mainly used to keep track of progress. Another practice followed was an informative workspace, the story cards were stuck to the wall so they were easily visible to everybody. They were also organized in groups, so the progress in each functional area was easily tracked.
 
-\begin{figure}[h]
+\begin{figure}
 	\centering
-	\includegraphics[scale=0.6]{figures/story_cards.pdf}
-	\caption[Story cards]{
-		In this image we can see a sketch of the structure of a story card and how they were organized.
-	}
+	\includegraphics[scale=0.75]{figures/story_cards.pdf}
+	\caption{Sketch of the structure used for the story cards.}
 	\label{story_cards}
 \end{figure}
 
@@ -112,14 +110,25 @@ The meetings with my two advisors were kept on face-to-face basis when possible.
 
 To keep the code accessible by everyone in the team, up to date and well organized \textbf{Git} \cite{gitrev} version control software was used. Git is free software used to manage source code and keep distributed revision control. Every Git working directory is a repository with complete history and revision tracking capabilities. In this project it was essential to have a system like this in place, because of the research nature of the project. Ideas needed to be tried without wasting time on keeping tabs on the added code, Git makes this really easy and not problematic thanks to history and revision tracking.
 
-Since the project is divided in two sub-projects (PCM and ToView\footnote{The visualizer, the main focus of this project.}), it was also necessary to manage the separate repositories in some way. With this in mind, \textbf{Redmine} \cite{redmine} was chosen to achieve our goal. This is a free and open source web-based tool for project management and bug tracking. It has support for multiple projects, a Gantt chart, calendar, support for multiple users, several types of repositories, news, wiki, etc. 
+Since the project is divided into two sub-projects (PCM and ToView\footnote{The visualizer, the main focus of this project.}), it was also necessary to manage the separate repositories in some way. With this in mind, \textbf{Redmine} \cite{redmine} was chosen to achieve our goal. This is a free and open source web-based tool for project management and bug tracking. It has support for multiple projects, a Gantt chart, calendar, support for multiple users, several types of repositories, news, wiki, etc. 
 
 As this project is meant to be open source, this tool will allow the coordination of the efforts of future developments well after the end of this project. We believe this project will be a good fit for the ``bazaar type'' of development that other successful open source software has used. In this model, the code is developed openly for everyone to see. This type of development also encourages the participation of the user in the development process.      
 
-We have also estimated the cost of the project as we can see in Table~\ref{cost_table}. It only includes human resources and hardware costs because all the software used was free.
+Although the research nature of this project made it difficult to have a good estimation in advance of how much time would be spent in each iteration, we provide a Gantt chart that depicts how the project iterations were performed after the fact (see \figurename~\ref{gantt_chart}).
+
+\begin{landscape}
+	\begin{figure}
+		\centering
+		\includegraphics[scale=0.6]{figures/gantt.png}
+		\caption{Gantt chart of the project.}
+		\label{gantt_chart}
+	\end{figure}
+\end{landscape}
+
+We have also estimated the cost of a project like this, as depicted in Table~\ref{cost_table}. It only includes human resources and hardware costs because all the software used was FLOSS.
 
 \begin{table}
-\begin{center}
+\centering
 \begin{tabular}{lcccr}
 \toprule
 Resource & Units & Hours & Cost per hour & Total \\
@@ -131,37 +140,5 @@ Resource & Units & Hours & Cost per hour & Total \\
   &&&&17000 \euro\\
 \bottomrule
 \end{tabular}
-\end{center}
-\caption[Cost estimate]{
-		Table showing the estimated cost of the project.
-}
-\label{cost_table}
+\caption{Cost estimation.}\label{cost_table}
 \end{table}
-
-Although because of the research nature of the project it was not possible to estimate how much time we would spend in each iteration, we provide a Gantt chart that depicts how the project iterations were performed after the fact (see \figurename~\ref{gantt_chart}).
-
-\begin{landscape}
-	\begin{figure}
-		\centering
-		\includegraphics[scale=0.6]{figures/gantt.png}
-		\caption[Gantt chart]{
-			Gantt chart of the project.
-		}
-		\label{gantt_chart}
-	\end{figure}
-\end{landscape} 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

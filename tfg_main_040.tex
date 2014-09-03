@@ -9,18 +9,14 @@ In this chapter, the structure of PCM and ToView is shown. Thus, a high level de
 
 \section[Analysis]{Analysis}
 
+\figurename~\ref{pipeline} depicts the usage pipeline of ToView. To use the system, a series of steps have to be followed. First, the raw LiDAR data is usually processed using software from the manufacturer (unifying scans, calibration, etc.). Once the resulting point cloud from the aforementioned software is available, it will be converted to our point cloud format. 
+
 \begin{figure}
-        \vspace*{0.5cm}
                 \centering
 				\includegraphics[scale=0.6]{figures/pipeline.pdf}
-                \caption[BDE pipeline]{
-                        Representation of the usage pipeline of ToView.
-                }
+                \caption{Pipeline representing the workflow in ToView.}
                 \label{pipeline}
-        \vspace*{0.5cm}
 \end{figure}
-
-\figurename~\ref{pipeline} depicts the usage pipeline of ToView. To use the system, a series of steps have to be followed. First, the raw LiDAR data is usually processed using software from the manufacturer (unifying scans, calibration, etc.). Once the resulting point cloud from the aforementioned software is available, it will be converted to our point cloud format. 
 
 Next, the k-d tree for accelerating calculations and rendering is created. When the k-d is created and stored in permanent memory, it can be used to estimate radii, normals, apply filters, etc. It can also be used to visualize the point clouds in an efficient way, since we have massive datasets and visualizing them in a naive way is not possible. 
 
@@ -28,23 +24,26 @@ In addition, multiple point clouds can be merged using the visualizer. The user 
 
 ToView can also be used to measure distances in point clouds that were registered with this purpose in mind. Lastly, the visualizer can be used to segment parametric primitives (planes, cylinders and spheres) and export them to a CAD compatible format.        
 
-\section[Design]{Design}
+% \section[Design]{Design}
  
-ToView is developed following an object oriented approach and using the C{}\verb!++! language \cite{primerplus}. In addition, design patterns have been used as much as possible. The compilers used until now have been Visual C{}\verb!++! in Windows systems, GCC in Linux and Clang in MacOS X. For the creation of multi-platform project files, we have made available a CMake \cite{cmake} makefile for PCM and ToView. For the visualization of the datasets, OpenGL will be used in conjunction with QT. All of these technologies together will allow the user to use the software in the operating system of choice.  
+% ToView is developed following an object oriented approach and using the C{}\verb!++! language \cite{primerplus}. In addition, design patterns have been used as much as possible. The compilers used until now have been Visual C{}\verb!++! in Windows systems, GCC in Linux and Clang in MacOS X. For the creation of multi-platform project files, we have made available a CMake \cite{cmake} makefile for PCM and ToView. For the visualization of the datasets, OpenGL will be used in conjunction with QT. All of these technologies together will allow the user to use the software in the operating system of choice.  
 
 \subsection[Use cases]{Use cases}
 
-In this subsection, the uses of the software package from the user point of view will be detailed. In our system there will be two types of actors, a normal user and a developer. The normal user will use the interface to interact with our software, while the developer will use the library to run its own algorithms to point clouds of arbitrary size. 
+This section describes the two main actors in ToView and PCM: a normal user
+and a developer. The normal user will use the interface to interact
+with ToView to visualize and manage point cloud datasets, whereas the
+developer will use the library to run its own algorithms on the point
+clouds. The diagrams in \figurename~\ref{use_cases} depict the use
+cases for both actors. These uses cases are detailed in the following tables.
 
-We now proceed to detail the use cases presented on \figurename~\ref{use_case_user}:
-
-\begin{figure}[p]
-                \centering
-                \includegraphics[scale=1.2]{figures/user.pdf}
-                \caption[ToView interaction use case diagram]{
-                        ToView interation use case diagram.
-                }
-                \label{use_case_user}
+\begin{figure}[h]
+  \centering
+  \subfigure[User]{\includegraphics[width=0.43\textwidth]{figures/user.pdf} \label{use_case_user}} \quad
+  \subfigure[Developer]{\includegraphics[width=0.4\textwidth]{figures/developer.pdf} \label{use_case_dev}}
+  \caption{ToView use case diagrams: \subref{use_case_user} User
+    interaction \subref{use_case_dev} Development interface.}
+  \label{use_cases}
 \end{figure}
 
 \newpage
@@ -342,19 +341,6 @@ We now proceed to detail the use cases presented on \figurename~\ref{use_case_us
 
 \pagebreak
 
-Next, the use cases on \figurename~\ref{use_case_developer} will be specified:
-
-\begin{figure}[h]
-                \centering
-                \includegraphics[scale=0.8]{figures/developer.pdf}
-                \caption[ToView developer use case diagram]{
-                        ToView developer use case diagram.
-                }
-                \label{use_case_developer}
-\end{figure}
-
-\pagebreak
-
 \begin{usecase}
 
 	\addtitle{Use Case 7}{Run algorithm} 
@@ -446,46 +432,47 @@ Next, the use cases on \figurename~\ref{use_case_developer} will be specified:
 
 \pagebreak
 
+\section[Design]{Design}
+
+Both PCM and ToView have been designed following an object oriented
+approach, and having in mind C{}\verb!++! as the development language
+\cite{primerplus}. Design patterns have been used as much as
+possible. The rest of this section briefly depicts the high-level
+design in the form of class diagrams. A more specific description is
+included in Chapters~\ref{chapter_5} and \ref{chapter_6}.
+
+% The compilers used until now have been Visual C{}\verb!++! in Windows systems, GCC in Linux and Clang in MacOS X. For the creation of multi-platform project files, we have made available a CMake \cite{cmake} makefile for PCM and ToView. For the visualization of the datasets, OpenGL will be used in conjunction with QT. All of these technologies together will allow the user to use the software in the operating system of choice.
+
 \subsection[Class diagram]{Class diagram}
 
-Now that we have exposed the conceptual approach, we show the class diagram of the engine. It will be further explained in the next chapters.
+The design of the {\bf PCM} library is depicted in the class diagram
+of \figurename~\ref{class_dia}).
+In this design, \textbf{Chunk} represents the minimum amount of information that will travel across the different levels of memory, that is why its size in bytes will be closely controlled. \textbf{BinPCHandler} is the intermediate compacted format (BPC) in the format conversion process and the spatial structure construction, its objective is representing an arbitrary length array of data that resides in permanent storage. \textbf{PCConverter} is the class in charge of offering a single interface to convert any type of point cloud file.
 
-\begin{figure}[h]
+\begin{figure}
                 \centering
-                \includegraphics[scale=0.6]{figures/PCM.pdf}
-                \caption[PCM class diagram]{
-                        PCM class diagram.
-                }
-                \label{class_dia}
+                \includegraphics[scale=0.73]{figures/PCM.pdf}
+                \caption{PCM class diagram.} \label{class_dia}
 \end{figure}
-
-On one hand we have the library \textbf{PCM} (see \figurename~\ref{class_dia}) that consists of:
-
-\textbf{Chunk} represents the minimum amount of information that will travel across the different levels of memory, that is why its size in bytes will be closely controlled. \textbf{BinPCHandler} is the intermediate compacted format (BPC) in the format conversion process and the spatial structure construction, its objective is representing an arbitrary length array of data that resides in permanent storage. \textbf{PCConverter} is the class in charge of offering a single interface to convert any type of point cloud file.
 
 The spatial structure is represented by \textbf{PCTree}. This class encapsulates two main functionalities, the construction of the chunk database and the multi-resolution tree management and its nodes. \textbf{PCTreeNode} contains information about the nodes that make up the spatial structure. 
 
 Next, the classes associated with memory management will be briefly described. \textbf{L2Cache} is the class responsible of the exchange of data between HDD and RAM. \textbf{L1Cache} is in charge of transferring data between RAM and VRAM. Both classes use \textbf{CacheStatsManager} to keep track of several statistics, like hit rate, miss rate, etc. 
 
-\begin{figure}[h]
-                \centering
-                \includegraphics[scale=0.6]{figures/ToView.pdf}
-                \caption[ToView class diagram]{
-                        ToView class diagram.
-                }
-                \label{class_dia_tov}
-\end{figure}
-
 \textbf{PointCloud} represents a complete dataset and is the external interface of the library. It will allow the user to request information about the dataset, to load a region, apply a certain operation, etc. This class is accompanied by \textbf{PCMConfig} that stores several information about the characteristics of the point cloud.
 
-On the other hand we have the visualizer \textbf{ToView} (see \figurename~\ref{class_dia_tov}) that is formed by:
+On the other hand we have the visualizer \textbf{ToView}, whose design
+is shown in the class diagram of \figurename~\ref{class_dia_tov}. It
+is mainly composed by the following classes:
+
+\begin{figure}
+                \centering
+                \includegraphics[width=\textwidth]{figures/ToView.pdf}
+                \caption{ToView class diagram.} \label{class_dia_tov}
+\end{figure}
 
 \textbf{MainWindow} is the class that represents the main window of the visualizer. It contains the navigation menus and the widget in which the rendering will be done. The \textbf{Settings} class is where all the information related to the configuration of ToView will be stored and provides the interface to modify it. \textbf{Segmentator} is in charge of providing the interface for the user to be able to control and use the segmentation feature of the visualizer and modify its settings.
 
 \textbf{QGLFrame} is responsible for creating the OpenGL context. It is also in charge of processing mouse and keyboard events. The rendering thread \textbf{QGLRenderThread} will also be launched from this class. As the name implies, this is the class that renders the point clouds. 
 
-\textbf{PointSampler} will allow the user to sample points from a point cloud to be able to measure distances or segment primitives later. \textbf{CloudSegmentator} is the class responsible for segmenting and exporting the supported primitives.     
-
-
-
-
+\textbf{PointSampler} will allow the user to sample points from a point cloud to be able to measure distances or segment primitives later. \textbf{CloudSegmentator} is the class responsible for segmenting and exporting the supported primitives.

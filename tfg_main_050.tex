@@ -15,74 +15,77 @@ PCM is also developed following an object oriented approach and using the C{}\ve
 \subsection[Dataset conversion and management]{Dataset conversion and management}
 \label{subsec:conv}
 
-\begin{figure}[h]
-	\centering
-	\includegraphics[scale=0.7]{figures/conv_man.pdf}
-	\caption[Conversion and management of datasets class diagram]{
-		Class diagram of the dataset conversion and management classes.
-	}
-	\label{conv_man}
-\end{figure}
-
-In the diagram in \autoref{conv_man}, the following classes are the most relevant:
-
+In the diagram of \autoref{conv_man}, the following classes are the most relevant:
 \begin{itemize}
 	\item \textbf{Chunk:} Minimum unit of data that will be managed by the different cache levels. Its size has to be strictly controlled because of this (no extra information just the basic information necessary to use it). Only has methods to read/write from/to disk.  
 	\item \textbf{BinPCHandler:} This class represents the binary format used in the format conversion process and the spatial structure construction. Its objective is to emulate a STL vector, but that resides in disk instead of system memory. This is necessary because during the construction, operations like the calculation of the median will use the whole cloud that will not fit in RAM. With this class, the cloud can be used like if it would fit in primary memory. To improve the performance, it will \textit{pre-fetch} and \textit{buffer} data, after a certain number of requests. It will also allow writing and reading. This class has great performance when accessing data sequentially, but it is not as efficient for random access. 
 	\item \textbf{PCConverter:} This will be the class that will provide a single interface to convert any type of point cloud to BPC. The ``strategy'' pattern was used to create this class. It first checks the format of the input point cloud and then delegates the responsibility to the adequate method. It can convert a single file or a set of files stored in a folder.
 \end{itemize}
 
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{figures/conv_man.pdf}
+	\caption[Conversion and management of datasets class diagram]{
+		Class diagram of the dataset conversion and management classes.
+	}
+	\label{conv_man}
+\end{figure}
+
 \subsection[Spatial data structure]{Spatial data structure}
 
-The most important class in \autoref{tree_class} is \textbf{PCTree}. The class will encapsulate two of the main functionalities:
+PCM uses a spatial data structure (a kd-tree) as core of the
+multi-resolution system. The relevant classes are shown in the class
+diagram of \autoref{tree_class}. The most important class is
+\textbf{PCTree}. This class encapsulates two of the main
+functionalities of the multi-resolution system:
+\begin{itemize}
+	\item The construction of the chunk DB and the spatial structure itself. This is done as a pre-process, before using the library. This can be achieved using \textit{PCGen}~\footnote{A provided command line utility.} or using the visualizer. 
+	\item Managing the multi-resolution tree, obtaining \textit{NodePaths}~\footnote{List of nodes to reach a certain area from the tree root.} and performing tree traversals.
+\end{itemize}
 
-\begin{figure}[h]
+\begin{figure}
 	\centering
-	\includegraphics[scale=0.6]{figures/tree_class.pdf}
+	\includegraphics[width=0.81\textwidth]{figures/tree_class.pdf}
 	\caption[Data strucuture class diagram]{
 		Class diagram of the spatial data structure.
 	}
 	\label{tree_class}
 \end{figure}
 
-\begin{itemize}
-	\item The construction of the chunk DB and the spatial structure itself. This is done as a pre-process, before using the library. This can be achieved using \textit{PCGen}\footnote{A provided command line utility.} or using the visualizer. 
-	\item Managing the multi-resolution tree, obtaining \textit{NodePaths}\footnote{List of nodes to reach a certain area from the tree root.} and performing tree traversals.
-\end{itemize}
+As an implementation detail, it is relevant to remark that the tree nodes, represented by the class \textbf{PCTreeNode}, are all kept in a lineal vector for quick access ($O(1)$). There are also some functions valid for any binary tree related to the traversal of the tree; getting the child nodes of a parent, level of a node, etc. There are also functions to read/write the tree from/to disk. Finally, there are also functions to build priority node lists for the visualizer.
 
-The tree nodes, represented by the class \textbf{PCTreeNode}, are all kept in a lineal vector for quick access ($O(1)$). There are also some functions valid for any binary tree related to the traversal of the tree; getting the child nodes of a parent, level of a node, etc. There are also functions to read/write the tree from/to disk. Finally, there are also functions to build priority node lists for the visualizer.  
 
 \subsection[Memory hierarchy]{Memory hierarchy}
 
-\begin{figure}[h]
-	\centering
-	\includegraphics[scale=0.6]{figures/hier_class.pdf}
-	\caption[Memory hierarchy class diagram]{
-		Class diagram of the memory hierarchy.
-	}
-	\label{hier_class}
-\end{figure}
-
-In \autoref{hier_class} the most significant classes are:
-
+The most significant classes in charge of the management of the memory
+hierarchy are shown in the shown in the class diagram of \autoref{hier_class}:
 \begin{itemize}
 	\item \textbf{L1Cache:} Responsible for loading/storing data in VRAM/RAM and the conversion of chunks in one or multiple VBOs. The class uses a variadic template to let the user choose the type of cache container (\textit{\_cache}). The \textit{update()} method will take care of making the requests to the L2 and the VBO conversion using \textit{load() and store()}.   
 	\item \textbf{L2Cache:} Is the class responsible for loading/storing data in RAM/HDD, it inherits from \textbf{Thread} so that it runs on its own thread. As we will mention in \autoref{subsec:L2}, a Map (\textit{\_cache}) keeps references to every chunk that is loaded in the \textit{\_data} attribute. The request list is kept in the attribute \textit{\_priorityList}. Both structures are protected by \textit{Mutex} and a custom \textit{Semaphore}. The \textit{run()} method contains the main loop. 
 	\item \textbf{CacheStatsManager:} Both of the previous classes contain an instance of this class. It is in charge of the monitorization of the caches, to get statistics of the cache status. Hits, misses, forced misses, load times, etc.  
 \end{itemize}
 
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{figures/hier_class.pdf}
+	\caption[Memory hierarchy class diagram]{
+		Class diagram of the memory hierarchy.
+	}
+	\label{hier_class}
+\end{figure}
+
 \subsection[External interface]{External interface}
 
-\begin{figure}[h]
+In \autoref{external_interf} the most important class is \textbf{PointCloud}, this class represents a complete dataset. This class will allow to load or save a dataset, request information about it, request to load an area or access to the spatial structure so that the user can make queries. 
+
+\begin{figure}
 	\centering
-	\includegraphics[scale=0.6]{figures/external_interf.pdf}
+	\includegraphics[scale=0.65]{figures/external_interf.pdf}
 	\caption[External interface class diagram]{
 		Class diagram of the external interface.
 	}
 	\label{external_interf}
 \end{figure}
-
-In \autoref{external_interf} the most important class is \textbf{PointCloud}, this class represents a complete dataset. This class will allow to load or save a dataset, request information about it, request to load an area or access to the spatial structure so that the user can make queries. 
 
 This class is used extensively by the visualizer to simplify the render process. It also provides several point cloud operations, like an statistical outlier removal filter, a voxel filter, radii estimation, etc.
 
@@ -126,7 +129,7 @@ The rest of the file will contain the point cloud data. The data will be stored 
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[scale=0.8]{figures/chunk.pdf}
+	\includegraphics[scale=0.7]{figures/chunk.pdf}
 	\caption[Chunk structure]{
 		Chunk structure.
 	}
@@ -144,7 +147,8 @@ A BPC file is treated like a single chunk that contains the whole cloud, so all 
 	\label{chunk_tree}
 \end{figure}
 
-The only big difference between a BPC file and a chunk, is that because the size of a BPC file will be much greater. Therefore it will not be possible to load the complete file at once, and we will rely on an interface class, \textbf{BinPCHandler}. This interface works in a similar manner to an array in system memory, but accessing permanent memory in an efficient way (this class will be further explained in the \autoref{subsec:conv}). 
+The only big difference between a BPC file and a chunk, is that because the size of a BPC file will be much greater. Therefore it will not be possible to load the complete file at once, and we will rely on an interface class, \textbf{\textcolor{Emerald}{BinPCHandler}}. This interface works in a similar manner to an array in system memory, but accessing permanent memory in an efficient way (this class will be further explained in the \autoref{subsec:conv}). 
+
 
 \section[Memory hierarchy]{Memory hierarchy}
 
@@ -154,7 +158,7 @@ In this project, a cache system with two levels has been implemented. It will ta
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[scale=0.5]{figures/mem_hierch.pdf}
+	\includegraphics[scale=0.6]{figures/mem_hierch.pdf}
 	\caption[Memory hierarchy]{
 		Memory hierarchy of PCM.
 	}
@@ -179,7 +183,7 @@ These concepts will be further explained in the next subsections.
 
 The first level cache (L1) is in charge of managing the storing and loading of data between primary memory (RAM) and video memory (VRAM). This cache level has been completely reworked, and also has been given the ability to not only load but also store information in primary memory. Even having a similar structure to the L2 cache, because of the characteristics of GPU processes, its operation is synchronous. 
 
-Its biggest responsibility, apart from the corresponding memory hierarchy management, will be the conversion of chunks of data to \textit{VBOs}\footnote{\textit{Vertex Buffer Object}: Structure that allows to store arrays of data in video memory.} in VRAM and viceversa. A chunk may have to be broken up into several VBOs depending on its size, so that optimal sizes of VBOs can be maintained for the GPU.
+Its biggest responsibility, apart from the corresponding memory hierarchy management, will be the conversion of chunks of data to \textit{VBOs}~\footnote{\textit{Vertex Buffer Object}: Structure that allows to store arrays of data in video memory.} in VRAM and viceversa. A chunk may have to be broken up into several VBOs depending on its size, so that optimal sizes of VBOs can be maintained for the GPU.
 
 \begin{figure}[h]
 	\centering
@@ -206,10 +210,10 @@ Also two replacement policies were implemented:
 
 \begin{itemize}
 	\item \textbf{Naive:} Erase any data block that is not necessary looping over the complete cache one time. This method does not take into account when was the last time that a block was last used, if it is not necessary it will be erased. 
-	\item \textbf{LRU\footnote{\textit{Least Recently Used}}:} This algorithm, will replace the elements that have been used least recently if the cache is full. If not full it will keep inserting nodes until it is.  
+	\item \textbf{LRU~\footnote{\textit{Least Recently Used}}:} This algorithm, will replace the elements that have been used least recently if the cache is full. If not full it will keep inserting nodes until it is.  
 \end{itemize} 
 
-To store the list of nodes currently in the cache two STL\footnote{\textit{Standard Template Library}} data structures can be used:
+To store the list of nodes currently in the cache two STL~\footnote{\textit{Standard Template Library}} data structures can be used:
 
 \begin{itemize}
 	\item \textbf{Map:} An associative container with key-value pairs with ordered unique keys. Complexity of searches and element access is logarithmic in size: $O(\log n)$. 
@@ -233,7 +237,7 @@ This process is completely transparent for the user, that will only have to use 
 \\
 \lstset{language=C++,frame=shadowbox,rulesepcolor=\color[gray]{0.8},lineskip=10pt, 
 		keywordstyle=\color{VioletRed}\bfseries,
-		emph={PointCloud}, emphstyle=\color{Emerald}\bfseries,
+		emph={PointCloud}, emphstyle=\color{Emerald}\bfseries, basicstyle=\footnotesize,
 		emph={[2]setChunkWriteL1,getNextDataGPU,getL1Entry,makeChangesGPU}, emphstyle={[2]\color{PineGreen}}}
 \begin{lstlisting}[caption={How to write data to L1 chunk.},captionpos=b,label={l1_write}]
  PointCloud cloud(...);
@@ -254,11 +258,11 @@ This process is completely transparent for the user, that will only have to use 
 
 The second level cache L2, will be in charge of transferring data (chunks) from disk to system memory (RAM). The replacement policy used in this cache is LRU \cite{taibo} as this is the most adequate policy for these types of systems. 
 
-To better use the resources available nowadays (multi-core CPUs), this cache will run on its own thread. Also since the massive datasets that we will deal with require a lot of computational power for even the simplest operations, this cache will be prepared to deal with simultaneous requests from different work threads. All of this is achieved with careful use of \textit{mutex}\footnote{A synchronization mechanism for enforcing limits on access to a resource in an environment where there are many threads of execution.} and \textit{semaphores}\footnote{A variable or abstract data type that is used for controlling access, by multiple processes, to a common resource in a parallel programming or a multi user environment.}. 
+To better use the resources available nowadays (multi-core CPUs), this cache will run on its own thread. Also since the massive datasets that we will deal with require a lot of computational power for even the simplest operations, this cache will be prepared to deal with simultaneous requests from different work threads. All of this is achieved with careful use of \textit{mutex}~\footnote{A synchronization mechanism for enforcing limits on access to a resource in an environment where there are many threads of execution.} and \textit{semaphores}~\footnote{A variable or abstract data type that is used for controlling access, by multiple processes, to a common resource in a parallel programming or a multi user environment.}. 
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[scale=0.9]{figures/L2.pdf}
+	\includegraphics[scale=0.7]{figures/L2.pdf}
 	\caption[L2 structure]{
 		L2 cache structure.
 	}
@@ -294,7 +298,7 @@ This cache can work in one of two ways:
 
 This cache is capable of not only reading data from the HDD, but also writing modified data from RAM to disk. This is achieved in a similar fashion to the L1. A complete loop over the whole cloud to perform an operation using the CPU and then writing it to disk, can be seen in \autoref{l2_write}.
 \\
-\lstset{emph={PointCloud,Chunk}, emphstyle=\color{Emerald}\bfseries,
+\lstset{emph={PointCloud,Chunk}, emphstyle=\color{Emerald}\bfseries, basicstyle=\footnotesize,
 		emph={[2]setChunkWriteL2,getNextData,getChunkL2,makeChanges,freeChunkL2}, emphstyle={[2]\color{PineGreen}}}
 \begin{lstlisting}[caption={How to perform an operation using the L2 and store the changes.},captionpos=b,label={l2_write}]
  PointCloud cloud(...);
@@ -314,7 +318,7 @@ The cache hit rate will be really high, because of the topology of the spatial s
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[scale=0.6]{figures/node_sharing.pdf}
+	\includegraphics[scale=0.7]{figures/node_sharing.pdf}
 	\caption[Common nodes close paths]{
 		Two node paths spatially close (3 and 4), in order to reach the maximum level of detail (level 2) share nodes 0 and 1.
 	}
@@ -395,24 +399,21 @@ The operating system used to run the tests was Windows 7 x64, with the VC{}\verb
 The datasets that will be used for testing are described in \autoref{dataset_table}.
 
 \begin{table}
-\begin{center}
-\begin{tabular}{cccc}
+\centering
+\begin{tabular}{clcc}
 \toprule
-Image & Name & Points & Features \\
+& Dataset & Points & Features \\
 \midrule
- \raisebox{-.5\height}{\includegraphics[scale=0.13]{figures/castelao.png}} & Castelao & $\sim 500K$  & Color, Normals \\[1cm]
- \raisebox{-.5\height}{\includegraphics[scale=0.13]{figures/dorna.png}} & Dorna & $\sim 3M$  & Color \\[1cm]
- \raisebox{-.5\height}{\includegraphics[scale=0.13]{figures/oficina.png}} & Oficina & $\sim 30M$  & Color \\[1cm]
- \raisebox{-.5\height}{\includegraphics[scale=0.13]{figures/lourizan.png}} & Lourizan & $\sim 90M$  & Color \\[1cm]
- \raisebox{-.5\height}{\includegraphics[scale=0.13]{figures/CALD.png}} & CALD & $\sim 200M$  & Color \\[1cm]
- \raisebox{-.5\height}{\includegraphics[scale=0.13]{figures/baron.png}} & Baron & $\sim 500M$  & Color \\[1cm]
- \raisebox{-.5\height}{\includegraphics[scale=0.13]{figures/castelo.png}} & Castelo & $\sim 1000M$  & Color \\
+ \parbox{2.5cm}{\includegraphics[width=\linewidth]{figures/castelao.png}} & Castelao & $\sim 500K$  & Color, Normals \\[1cm]
+ \parbox{2.5cm}{\includegraphics[width=\linewidth]{figures/dorna.png}} & Dorna & $\sim 3M$  & Color \\[1cm]
+ \parbox{2.5cm}{\includegraphics[width=\linewidth]{figures/oficina.png}} & Oficina & $\sim 30M$  & Color \\[1cm]
+ \parbox{2.5cm}{\includegraphics[width=\linewidth]{figures/lourizan.png}} & Lourizan & $\sim 90M$  & Color \\[1cm]
+ \parbox{2.5cm}{\includegraphics[width=\linewidth]{figures/CALD.png}} & CALD & $\sim 200M$  & Color \\[1cm]
+ \parbox{2.5cm}{\includegraphics[width=\linewidth]{figures/baron.png}} & Baron & $\sim 500M$  & Color \\[1cm]
+ \parbox{2.5cm}{\includegraphics[width=\linewidth]{figures/castelo.png}} & Castelo & $\sim 1000M$  & Color \\
 \bottomrule
 \end{tabular}
-\end{center}
-\caption[Tested datasets]{
-		Table showing the datasets that were used when testing.
-}
+\caption{Datasets used in our tests.}
 \label{dataset_table}
 \end{table}
 

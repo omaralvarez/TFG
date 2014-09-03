@@ -9,16 +9,13 @@ In this chapter, some concepts in 3D rendering are introduced, paying special at
 
 Only a brief description of these concepts is presented, to get more familiarized with Computer Graphics the book \cite{CGPP} is recommended. For point-based rendering techniques the book \cite{pbg} is an essential source.
 
-\section[Rendering]{
-	Rendering
-}
+\section{Rendering}
 
 Traditionally Computer Graphics has been defined as the computer science discipline that is dedicated to synthesizing images algorithmically with computers. Nowadays we can find even more related topics like hyper realistic photography, animation techniques, virtual reality, etc. To generate images from three-dimensional scenes a process called \textbf{render} is used. This set of actions  is in charge of modeling objects and their properties, illumination if needed and the camera that will capture everything.
 
 As has been said before, rendering is the computational process of generating an image from a model. From this definition multiple interpretations are possible, from creating a 3D animation film to a bar chart in a spreadsheet, all of them are equally valid. Although the term is normally used when the model we are using is of a spatial nature and more specifically three-dimensional.
 
-Several classifications of rendering techniques could be made, but for this introduction we will use two of them. On one side, if we use the type or style of the image we want to achieve, we will have:
-
+Several classifications of rendering techniques could be made~\cite{realtime}, but for this introduction we will use two of them. On one side, if we use the type or style of the image we want to achieve, we will have:
 \begin{itemize}
 \item \textbf{Non-photorealistic rendering}, uses other types of effects that render the scene with artistic style, intended to look like a painting or drawing.
 \item \textbf{Photorealistic rendering}, tries to be as faithful as possible to reality. This type of render can be subdivided in: 
@@ -28,12 +25,13 @@ Several classifications of rendering techniques could be made, but for this intr
 	\end{itemize}
 \end{itemize}
 
-\begin{figure}[h]
+\figurename~\ref{photo_comp} shows a photorealistic render on the left
+picture and an example of non-photorealistic on the right one.
+
+\begin{figure}
 	\centering
-	\includegraphics[scale=0.5]{figures/photo_comp.pdf}
-	\caption[Rendering types comparison]{
-		A photorealistic render on the left, versus a non-photorealistic render on the right.
-	}
+	\includegraphics[width=\textwidth]{figures/photo_comp.pdf}
+	\caption{Rendering types comparison: photorealistic vs. non-photorealistic.}
 	\label{photo_comp}
 \end{figure}
 
@@ -41,95 +39,79 @@ On the other side, if we compare the interaction capabilities of the rendering a
 
 \begin{itemize}
 \item \textbf{Offline rendering}: Where the process that generates the image is too slow to respond instantaneously to the user interactions. A time scale of seconds and up to several days can be considered ``slow''. This happens for example when generating photograms for a movie.
-\item \textbf{Online rendering}: Where processing time would be short enough to respond to user interactions so that the user has the sensation of continuity. A time scale of miliseconds would be needed to achieve this effect. Normally it is measured in \emph{frames per second} (FPS). A good example of this technique are videogames. 
+\item \textbf{Online rendering, also known as Real-time rendering}: Where processing time would be short enough to respond to user interactions so that the user has the sensation of continuity. A time scale of miliseconds would be needed to achieve this effect. Normally it is measured in \emph{frames per second} (FPS). A good example of this technique are videogames. 
 \end{itemize}
 
-Almost everything in this document will be devoted to non-photorealistic real-time rendering techniques, since ToView is aimed as way for the user to interact in real-time with massive point clouds.
+Most of the work included in this document is focused in achieving real-time rendering, even though that means sacrifice a better photorealistic-looking aspect, since ToView is aimed to allow the userto interactively work with huge point cloud datasets.
 
-For more information about real-time rendering please consult \cite{realtime}.
 
-\subsection[Rendering process]{Rendering process}
+\subsection{Rendering process}
 
 There are several techniques for generating images from a model. All of them start with a camera position, the geometry of the objects is projected in that direction one way or another, calculating the color of each resulting pixel. The two families of techniques are the ones based on \emph{scanline rendering}, where lists of geometry are traversed with horizontal scan lines. Intermediate calculations determine what object is closer to the camera, how do the lights in the scene affect the objects, etc.
 
 Since we require real-time rendering, we will take advantage of the power of the GPU. The GPU \textit{pipeline} is the process implemented in hardware to create images from the scene information in a highly efficient way. It is comprised of several stages were several lineal algebra operations that account for the position, rotation and scaling of the point of view, objects and lights; to finally determine the color of the pixel drawn to the screen. 
 
 A GPU can be used to process graphical data using two APIs\footnote{\textit{Application Programming Interface}}:
-
 \begin{itemize}
 \item \textbf{DirectX}: Microsoft's propietary API, only useful in Windows systems. 
 \item \textbf{OpenGL}: Standard and multiplatform, this were the main reasons why it was the chosen API for this project. 
 \end{itemize}
 
-\begin{figure}[h]
-	\centering
-	\includegraphics[scale=0.6]{figures/ogl_pipe.pdf}
-	\caption[OpenGL pipeline]{
-		The OpenGL pipeline.
-	}
-	\label{opengl_pipe}
-\end{figure}
-
 In modern GPUs, some of the stages of the pipeline can be modified using small programs written in GLSL\footnote{\textit{GL Shading Language}} called shaders. In \figurename~\ref{opengl_pipe} the simplified pipeline of a modern version of OpenGL can be observed. In it the vertex, geometry and fragment stages are programmable. The \textit{frame-buffer}\footnote{The portion of memory (buffer) reserved to maintain temporally an image (frame) awaiting to be sent to the monitor.} will be the final image that will be shown onscreen. 
+
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.65]{figures/ogl_pipe.pdf}
+	\caption{The OpenGL pipeline.}\label{opengl_pipe}
+\end{figure}
 
 Although there are some constraints in the form of number of instructions and control structures, shaders started a revolution in real-time rendering. Sometimes even allowing to create images almost as realistic as offline rendering.  
 
-\subsection[Models]{
-	Models
-}
+\subsection{3D Models}
 
-Modeling describes the process of forming the shape of a virtual object in a computer. There are several types of models (see \figurename~\ref{model_comp}):
-
+Modeling describes the process of forming the shape of a virtual
+object in a computer. There are mainly three different types of 3D models:
 \begin{itemize}
-\item \textbf{Polygon-based}: Describe the surface of an object as a set of polygons. Triangles are the most commonly used polygons, since they are flat and trivially convex. Most of the existing graphics hardware is optimized for this primitive.
-\item \textbf{Voxel-based}: Divides space in a regular 3D grid where the \emph{voxel} is the smallest unit of volume. Each cell is either filled or not and depending on that the pixels are shaded. Memory increases as precision is augmented. 
+\item \textbf{Polygon-based}: Describe the surface of an object as a
+  set of polygons. Triangles are the most commonly used polygons,
+  since they are flat and trivially convex. Most of the existing
+  graphics hardware is optimized for this primitive.
+
+  Although modeling is usually not directly carried out using
+  triangles (a scene is often formed with a mixture of all kind of
+  polygons and parametric surfaces), the final triangles are finally
+  obteined by a process known as tessellation.
+\item \textbf{Voxel-based}: Divides space in a regular 3D grid where
+  the \emph{voxel} is the smallest unit of volume. Each cell is either
+  filled or not and depending on that the pixels are shaded. Memory
+  increases as precision is augmented. This kind of render is often
+  used in Biomedical Informatics.
 \item \textbf{Point-based}: Objects are represented by point samples of their surface, that is why they are usually called \emph{splats}. Each point has a position and some information about the surface that it belongs to. Compared to the traditional triangle-based approach, this primitive needs its own rendering techniques and its own pipeline, since different challenges must be faced. This is our case study and because of that, this primitive will be further explained in Section~\ref{splats_and_points}.
 \end{itemize}
 
-\begin{figure}[h]
-	\centering
-	\includegraphics[scale=0.6]{figures/model_comp.pdf}
-	\caption[Model types comparison]{
-		From left to right; a polygon-based, a voxel-based and a point-based model of a plane (2D representation).
-	}
-	\label{model_comp}
-\end{figure}
 
 %
 % SECCION - Título de la sección
 %
-\section[Splats]{\label{splats_and_points}
-	Splats and points
-}
+\section{Splats and points}\label{splats_and_points}
 
 A point cloud is a set of vertices or points in a three-dimensional coordinate system. These vertices are usually positioned in 3D space and have a set of coordinates $(x,y,z)$. These sets of points normally are representative of the external surface of an object. 
 
-\begin{figure}[h]
+Point cloud datasets are usually captured by 3D scanners. These devices capture automatically a large number of points on the surface of an object (see \figurename~\ref{point_cloud}), and yield a point cloud dataset as a result. 
+
+\begin{figure}
 	\centering
 	\includegraphics[scale=1]{figures/point_cloud.pdf}
-	\caption[Point cloud]{
-		Photo overlaid atop laser scan data from a project held in early 2009 at Kasubi Tombs.
-	}
-	\label{point_cloud}
+	\caption{Example of a point-based rendering: photo overlaid
+          atop laser scan data from a project held in early 2009 at
+          Kasubi Tombs.} \label{point_cloud}
 \end{figure}
-
-Point clouds are normally created by 3D scanners, these devices capture automatically a large number of points on the surface of an object (see \figurename~\ref{point_cloud}), and yield a point cloud dataset as a result. 
 
 The points from the range data represent a surface, but a point is zero-dimensional; this means that it does not have volume, area, length or any other higher dimensional equivalent. Usually point clouds are not directly usable in most 3D applications because of this reason. That is why we need splats (surface elements), that describe the surface in a small neighborhood. 
 
-At this point we need to choose how the surface will be represented by the point. In our project we will represent the splat as a disc. 
+At this point we need to choose how the surface will be represented by the point. In our project we will represent the splat as a disc.
 
-\begin{figure}[h]
-	\centering
-	\includegraphics[scale=0.4]{figures/surf_disc.pdf}
-	\caption[Disc approach]{
-		Visual representation of the splat as a disc.
-	}
-	\label{surf_disc}
-\end{figure}
-
-If on the other hand we choose to represent the splat as a disc, the splats can have have the following parameters (see \figurename~\ref{surf_disc}):
-
+On the other hand, if the splat is represented as a disc, it can have the following parameters (see \figurename~\ref{surf_disc}):
 \begin{description}
   \item [Position:] \emph{x}, \emph{y} and \emph{z} coordinates in world space.
   \item [Normal:] A vector that represents the surface normal of the splat. It can be provided or the engine can estimate it.
@@ -138,9 +120,14 @@ If on the other hand we choose to represent the splat as a disc, the splats can 
   \item [Other properties:] Intensity, reflectivity, temperature, etc.
 \end{description}
 
-\section[Transformations]{
-	3D Euclidean space and transformations
-}
+\begin{figure}
+	\centering
+	\includegraphics[scale=0.4]{figures/surf_disc.pdf}
+	\caption{Disc approach: Visual representation of the splat as
+          a disc.} \label{surf_disc}
+\end{figure}
+
+\section{3D Euclidean space and transformations}
 
 In 3D computer graphics we normally work with a three-dimensional space of Euclidean geometry, the term ``Euclidean'' is used to distinguish between these spaces and the curved spaces of non-Euclidean geometry. The most common types of operations in Euclidean geometry can be represented with a transformation matrix if homogeneus coordinates are used. Because of this a transformation \textbf{T} can be used for several purposes. 
 
@@ -151,7 +138,6 @@ Generally a transformation is a mapping from points to points or vectors to vect
 To transform the points or vectors we just have to perform the appropriate matrix multiplications. This also allows the composition of transformations, we just have to multiply the transformation matrices. 
 
 Most commonly used transformations are:
-
 \begin{itemize}
 \item \textbf{Rotation}, will rotate a point or a vector by a given angle either around an arbitrary axis or the $x$, $y$ or $z$ axis.
 \item \textbf{Scaling}, takes a point or a vector and will scale its $x$, $y$ and $z$ components by a factor.
@@ -163,14 +149,20 @@ Most commonly used transformations are:
 
 Usually the composition of the model, view and projection matrices is called \textit{MVP} and is applied to every point that we want to draw.
 
-To illustrate how the transformations are represented by a $4\times4$ matrix, equation~\ref{eq_trans} shows the generic transformation matrix for a translation: \begin{equation}\label{eq_trans}\textbf{T}(\Delta x,\Delta y,\Delta z) = \begin{pmatrix}
+To illustrate how the transformations are represented by a $4\times4$
+matrix, equation~\ref{eq_trans} shows the generic transformation
+matrix for a translation:
+
+\begin{equation}\label{eq_trans}\textbf{T}(\Delta x,\Delta y,\Delta z) = \begin{pmatrix}
  1& 0 & 0 & \Delta x\\ 
  0& 1 & 0 & \Delta y\\ 
  0& 0 & 1 & \Delta z\\ 
  0& 0 &0  & 0
 \end{pmatrix}\end{equation}
 
-This transformation is applied to a point $P=(x,y,z)$ in the following way: \begin{equation}\begin{pmatrix}
+This transformation is applied to a point $P=(x,y,z)$ in the following
+way:
+\begin{equation}\begin{pmatrix}
  1& 0 & 0 & \Delta x\\ 
  0& 1 & 0 & \Delta y\\ 
  0& 0 & 1 & \Delta z\\ 
@@ -187,9 +179,7 @@ z+\Delta z\\
 1
 \end{pmatrix}\end{equation}
 
-\section[Camera model]{\label{camera_model}
-	Camera model
-}
+\section{Camera model}\label{camera_model}
 
 Almost everyone nowadays has used a camera and knows its basic purpose: you want to record an image of the world (usually pressing a button) and the image is then recorded on a film. One of the simplest  cameras in the real world is the \emph{pinhole camera}. Pinhole cameras use a light tight space with a hole at one end. When this hole is uncovered light enters through the hole and reaches a piece of photographic paper on the other end of the box (see \figurename~\ref{pinhole}). In this day and age, cameras are more complex than this simple camera model, but this is a good starting point to explain how our simulation works.
 
@@ -208,7 +198,7 @@ If we were to use the pinhole as the film, the viewing volume would not change. 
 
 The camera model used in this project supports several settings. First we explain how this settings affect the camera model, after we detail how the camera model interacts with the ray tracing process. Readers can consult \cite{PBRT} if they want to delve deeper in the topic.
 
-\subsection[Parameters]{Camera parameters}
+\subsection{Camera parameters}
 
 The first parameter that the camera model supports is \textbf{camera position}. This parameter states where the camera will be positioned in world space coordinates (\emph{x,y,z}).
 
@@ -256,7 +246,7 @@ Orthographic projection is more commonly used in engineering because dimensions 
 
 Another option that is available is using a \textbf{FPS}\footnote{First-Person Camera} or an \textbf{orbital} camera. On one hand with a first person camera the user can walk freely just like if he was inside the scene, forward, back, left, right, etc. On the other hand with an orbital camera the user sets a center point and then orbits around said point.     
 
-\subsection[Inner workings]{Camera inner workings}
+\subsection{Camera inner working}
 
 Once we have the camera parameters we need to place the camera in the scene, we will use a \emph{look-at} transformation for this purpose. Using the look-at transformation as view matrix will give us a transformation between world and camera coordinates as mentioned before. The matrix is constructed using the position ($p$), orientation ($o$) and up ($u$) vector. 
 
