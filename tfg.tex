@@ -62,8 +62,15 @@
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhf[HR]{\thepage}
-\fancyhf[HL]{\nouppercase\rightmark}
+%\fancyhf[HR]{\thepage}
+%\fancyhf[HL]{\nouppercase\rightmark}
+\fancyhead[LO]{\leftmark}
+\fancyhead[RE]{\rightmark}
+\fancyhead[RO,LE]{\thepage}
+\renewcommand{\chaptermark}[1]{\markboth{\textbf{\thechapter. #1}}{}}
+\renewcommand{\sectionmark}[1]{\markright{\textbf{\thesection. #1}}}
+\renewcommand{\headrulewidth}{0.6pt}
+\setlength{\headheight}{2.5\headheight}
 
 % Package booktabs -> Para mejorar el aspecto de las tablas o cuadros.
 % http://www.ctan.org/tex-archive/macros/latex/contrib/booktabs/
