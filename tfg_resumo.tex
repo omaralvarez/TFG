@@ -4,29 +4,53 @@
 
 \section*{Resumo:}
 
-O render baseado en puntos ten múltiples vantaxes respecto do clásico que utiliza mallas de polígonos, sobre todo no caso no que os polígonos poidan chegar a ser máis pequenos ca un pixel.
+O obxectivo deste proxecto é o deseño e implementación dunha
+ferramenta multiplataforma para a visualización de nubes de puntos que
+permita a xestión e manipulación de grandes volumes de datos. Este
+tipo de \emph{datasets} poden ser obtidos a partir dun escáner LIDAR
+ou de alternativas de baixo custo como KINECT.
 
-O obxectivo deste proxecto é deseñar e implementar un motor de render baseado en puntos que utilice raytracing como método de iluminación global. Ao ser un campo todavía pouco explorado, o proxecto presenta unha importante compoñente investigadora, xa que implica a búsqueda de solucións que nos permitan resolver os distintos problemas que xurden nas diferentes fases dun \emph{pipeline} gráfico para o render de puntos. Tres son as principais metas que se propuxeron acadar con este proxecto:
-\begin{itemize}
-\item Desenvolver un motor de \emph{ray tracing} desde cero.
-\item Investigar como as técnicas de iluminación global máis habituais poden ser aplicadas en render baseado en puntos.
-\item Comprobar o potencial do punto como primitiva gráfica dun motor de render.
-\end{itemize}
+Este tipo de sistemas capturan un gran volume de información, xerando
+nubes de puntos de gran tamaño con miles de millóns de información
+xeométrica, color, normais, reflectividade, etc. A consecuencia é un
+conxunto de información difícil de manexar de xeito interactivo, ao
+non caber completo na memoria RAM dun ordenador e requerir o traballo
+desde memoria secundaria (clásicamente un disco duro). Isto complica
+a creación de aplicacións en tempo real para a xestión e manexo deste
+conxunto masivo de datos.
 
-O motor proposto segue un deseño totalmente modular, con varias etapas
-que permiten desacoplar as distintas operacións a realizar para obter o render dunha escena 3D. Así, primeiro precisaremos gardar a información que o motor necesita para renderizar unha escea (cousas coma a posición da cámara, orientación, etc.). Para iso utilízase un arquivo de configuración XML que contén todos estos datos, así como calquera outra información relevante para o proceso de render.
+A ferramenta software desenvolvida neste proxecto ofrécelle ao usuario
+final todas as funcionalidades necesarias para o traballo con este
+tipo de datos, desde un completo visualizador 3D para render de
+puntos, que inclúe características de visualización avanzada de
+OpenGL, soporte para o traballo con varias nubes de puntos
+simultaneamente, múltiples cámaras diferentes coas que traballar,
+características multiresolución, posibilidade de aplicar
+transformacións e distintos tipos de pre-proceso sobre os datos, medir
+distancias, detección de obxectos na nube de puntos, exportación a CAD
+dos obxectos seleccionados, etc
 
-Seguidamente precísase gardar os datos da nube de puntos. Para iso é necesario saber a posición, vector normal, etc. de cada punto, para o que utilizamos un arquivo de texto ASCII que contén toda a información da escena de entrada e que ademais soporta control de versións, permitindo cambios no formato. Tamén ofreceremos unha interfaz integrada en Blender que permite ao usuario crear datasets en Blender e renderizarlos co noso motor. Isto dota ó proxecto dunha gran flexibilidade, xa que é capaz de renderizar datasets ou calquer escea en Blender.
+Para a implementación de todas esas funcionalidades partiuse da
+biblioteca software PCM, aínda en desenvolvemento e que xurde tamén
+na Unidersidade da Coruña. Este biblioteca proporciona unha serie de
+ferramentas de baixo nivel para a xestión de nubes de puntos masivas
+en hardware de uso común. Neste proxecto non soamente se fai uso das
+características existentes de PCM, senón que, ademais da propia
+ferramenta de visualización desenvolvida (bautizada como ToVIEW), tamén se extendeu
+ampliamente a biblioteca PCM para poder ofrecer todas as funcionalidades
+necesarias no proxecto, ademais de varias melloras de rendemento na mesma.
 
-Despois deste paso, precísase elexir o modelo de cámara a usar. No noso motor implementamos dúas opcións diferentes. Así, é posible elexir entre unha cámara axonométrica ou en perspectiva (dependendo do modo de render elexido). Por outra banda, tamén é posible elexir entre obter o render mediante a proxección da escena na cámara ou ben usando raytracing. Aínda que o motor implementa ambas alternativas, concentrarémonos no raytracing, posto que é a opción que máis posibilidades e prestacións ofrece, sendo o caso a estudar no proxecto.
+No proxecto abordouse ademais o aproveitamento das posibilidades para
+o procesamento paralelo presentes no hardware no que se executa PCM,
+tanto en canto á CPU como ás capacidades GPGPU da tarxeta gráfica.
 
-É importante reseñar que debido á natureza das nubes de puntos, que tenden a ter unha gran cantidade de datos, para a aceleración do proceso de raytracing o motor permite utilizar unha estrutura de aceleración espacial que permita organizar as nubes de puntos para optimizar determinadas operacións cos mesmos (intersección raio-escena, búsqueda de veciños, etc.). Concretamente, neste proxecto implementouse un k-d tree como estrutura de aceleración. O uso do k-d tree permite obter unha importante mellora no rendemento do noso motor.
-
-Respecto ao tradicional render baseado en polígonos, o render con puntos presenta algunhas desvantaxes, como por exemplo a natureza adimensional dos mesmos. Isto quere dicir que o punto non ten superficie, volumen ou normal, o que introduce novos problemas en moitas das operacións comúns dun motor de render: interseccións, iluminación, etc. Concretamente, no caso do cálculo da iluminación é imprescindible dispor dos vectores normais ás distintas superficies da escena, neste caso representadas por puntos. Se non se dispón destas normais, é necesario estimalas dalgún xeito. Para resolver este problema o proxecto utiliza un método de mínimos cadrados que se usa para estimar a normal nun punto dependendo de donde estén os seus veciños.
-
-A derradeira etapa do noso motor, pero non menos importante de acordo aos obxectivos do proxecto, é a iluminación da escena. O motor ofrece dúas opcións. Por un lado pódese utilizar un método de \emph{hard shadows}, menos custoso computacionalmente pero con resultados pouco realistas. Por outra banda,
-o motor implementa o método de \emph{Monte Carlo}, modelo de iluminación global que trata de simular o comportamento real da luz nun contorno, ofrecendo resultados máis realistas, aínda que significativamente máis custosos.
-
-Posto que o motor fai un importante uso de distintas operacións e funcións matemáticas ao longo de todas as súas fases, o proxecto tamén incorpora unha librería matemática que se encarga destas tarefas.
-
-
+Por último, o paquete software resultante foi deseñado para ser
+facilmente integrable nos fluxos de traballo habituais nos sectores da
+enxeñería que máis habitualmente empregan escaneos 3D en forma de
+nubes de puntos, como pode ser, por exemplo, a topografía.
+Durante a realización do proxecto traballouse con profesionais da
+topografía habituados a incorporar o uso da tecnolocía LIDAR no seu
+traballo, o que facilitou a creación dunha ferramenta útil e versátil
+para o usuario final.
+No aspecto da fácil integración en entornos profesionais tamén axuda o
+feito de tratarse dun desenvolvemento multiplataforma e \emph{open source}.
