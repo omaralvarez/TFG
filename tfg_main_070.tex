@@ -46,8 +46,6 @@ An optional output of a vertex shader is the point size, that when set to $s$, c
  glEnable(GL_POINT_SMOOTH);
 \end{lstlisting}
 
-TODO simple way without msaa in fragment
-
 The screen-space size of the projected OpenGL point has to be adjusted in the vertex shader, so that holes do not appear when moving closer to the object. To allow us to modify the point size dynamically in the vertex shader and specify our coordinate system origin, we will use the following code:
 \\
 \lstset{emph={[2]glEnable,glPointParameteri}, emphstyle={[2]\color{PineGreen}},emph={[3]GL_PROGRAM_POINT_SIZE,GL_POINT_SPRITE_COORD_ORIGIN,GL_LOWER_LEFT}, 
