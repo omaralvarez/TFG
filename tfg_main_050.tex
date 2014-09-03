@@ -50,9 +50,7 @@ The most important class in \autoref{tree_class} is \textbf{PCTree}. The class w
 	\item Managing the multi-resolution tree, obtaining \textit{NodePaths}\footnote{List of nodes to reach a certain area from the tree root.} and performing tree traversals.
 \end{itemize}
 
-The tree nodes, represented by the class \textbf{PCTreeNode}, are all kept in a lineal vector for quick access ($O(1)$). There are also some functions valid for any binary tree related to the traversal of the tree; getting the child nodes of a parent, level of a node, etc. There are also functions to read/write the tree from/to disk. Finally, there are also functions to build priority node lists for the visualizer.
-
-TODO assembler log?   
+The tree nodes, represented by the class \textbf{PCTreeNode}, are all kept in a lineal vector for quick access ($O(1)$). There are also some functions valid for any binary tree related to the traversal of the tree; getting the child nodes of a parent, level of a node, etc. There are also functions to read/write the tree from/to disk. Finally, there are also functions to build priority node lists for the visualizer.  
 
 \subsection[Memory hierarchy]{Memory hierarchy}
 
@@ -146,9 +144,7 @@ A BPC file is treated like a single chunk that contains the whole cloud, so all 
 	\label{chunk_tree}
 \end{figure}
 
-The only big difference between a BPC file and a chunk, is that because the size of a BPC file will be much greater. Therefore it will not be possible to load the complete file at once, and we will rely on an interface class, \textbf{\textcolor{Emerald}{BinPCHandler}}. This interface works in a similar manner to an array in system memory, but accessing permanent memory in an efficient way (this class will be further explained in the \autoref{subsec:conv}). 
-
-\subsection[Output]{Output}
+The only big difference between a BPC file and a chunk, is that because the size of a BPC file will be much greater. Therefore it will not be possible to load the complete file at once, and we will rely on an interface class, \textbf{BinPCHandler}. This interface works in a similar manner to an array in system memory, but accessing permanent memory in an efficient way (this class will be further explained in the \autoref{subsec:conv}). 
 
 \section[Memory hierarchy]{Memory hierarchy}
 
