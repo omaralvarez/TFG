@@ -231,7 +231,7 @@ Another implemented feature are types of cache requests, there are several avail
 
 This cache not only can read and load nodes from L2, it also has the ability to store changes made in video memory (L1) in RAM (L2). The user can choose if he wants the changes made in GPU (e.g. an OpenCL kernel) to be persistent or not.
 
-When the node is evicted from the cache, its changes will be written to the L2 cache prior to its deletion. In the \autoref{l1_write} we not only show how to write changes to other cache levels, but also how to use PCM with its new \textbf{\textcolor{Emerald}{PointCloud}} interface to loop over the complete cloud out of core and perform some custom operation.
+When the node is evicted from the cache, its changes will be written to the L2 cache prior to its deletion. In the \autoref{l1_write} we not only show how to write changes to other cache levels, but also how to use PCM with its new \textbf{PointCloud} interface to loop over the complete cloud out of core and perform some custom operation.
 
 This process is completely transparent for the user, that will only have to use this example code:
 \\
